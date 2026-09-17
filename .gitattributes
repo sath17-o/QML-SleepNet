@@ -1,0 +1,2 @@
+# Preserve the evaluator scoring-label file byte-stably across Windows/Linux checkouts.
+precomputed/final_integrated_inputs/OFFICIAL_X_EVALUATION_LABELS.csv text eol=lf
