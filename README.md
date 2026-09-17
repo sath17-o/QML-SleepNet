@@ -48,6 +48,7 @@ The Stage04 implementation uses 8 qubits, VQC depth 4, 96 variational quantum pa
 ## Reproducibility path 1 — repository verification
 
 ```bash
+pip install -r requirements-verify.txt
 python scripts/run_pipeline.py --mode verify
 ```
 
