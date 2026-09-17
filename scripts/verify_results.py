@@ -33,10 +33,10 @@ names={r.get('system') for r in rows}
 required={'FINAL_QML_INCLUSIVE_PROMOTED','STAGE15A_PHYSIOLOGY_CLASSICAL','CANONICAL_GUIDE_QML'}
 if required-names: raise RuntimeError('Missing final comparison rows: '+repr(sorted(required-names)))
 
-print('Frozen scientific-contract verification PASSED')
-print(f"Promoted QML-inclusive accuracy: {final['metrics']['accuracy']*100:.4f}%")
-print(f"Canonical guide QML accuracy: {m['comparison_roles']['canonical_guide_qml']['accuracy']*100:.4f}%")
-print(f"Best classical-only benchmark: {m['comparison_roles']['best_classical_only_benchmark']['accuracy']*100:.4f}%")
+print('Scientific-contract verification PASSED')
+print(f"Final integrated QML-inclusive accuracy: {final['metrics']['accuracy']*100:.4f}%")
+print(f"Reference QML system accuracy: {m['comparison_roles']['canonical_guide_qml']['accuracy']*100:.4f}%")
+print(f"Physiology-only classical comparator accuracy: {m['comparison_roles']['best_classical_only_benchmark']['accuracy']*100:.4f}%")
 print('Prediction SHA-256:',expected_sha)
 print('Official-x:',final['official_x_records'],'records /',final['official_x_rows'],'rows')
 print('Training performed by verifier: NO')
