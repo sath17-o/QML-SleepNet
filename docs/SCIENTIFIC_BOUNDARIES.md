@@ -1,11 +1,11 @@
-# Scientific boundaries
+# Scientific scope and reporting boundaries
 
-1. **Guide source lock.** Alignment claims are made against the five files in `guide_source/`, not against later assistant diagrams or older proposal variants.
-2. **Task boundary.** The frozen guide-native classifier is Task A: Apnea vs Normal. OSA/CSA/Mixed ground truth is not manufactured.
-3. **AHI boundary.** AHI is excluded from Stage03 model input to avoid target leakage from A/N annotations.
-4. **Causal boundary.** SCM/ACE/intervention outputs are assumption-dependent observational causal evidence, not clinical proof.
-5. **Quantum boundary.** QML components are implemented and compared; no quantum advantage is claimed.
-6. **Identity boundary.** The Stage06 checkpoint, canonical reported QML wrapper and promoted 25/75 fusion are distinct systems.
-7. **Validation boundary.** The promoted official-x result is historical/project-level evidence and is not presented as pristine never-seen external validation.
-8. **Reproduction boundary.** The packaged guide replay starts from prepared Stage02 records plus a frozen label-free feature cache; raw→Stage02 one-click reproduction is not claimed.
-9. **Robustness boundary.** Stage10 perturbation evidence has the scope recorded in its manifest and is not generalized beyond that scope.
+1. **Methodological source.** Implementation-alignment statements are evaluated against the archived project specification diagrams and the associated versioned manifests.
+2. **Prediction target.** The Stage06 classifier predicts minute-level Apnea versus Normal. OSA/CSA/Mixed subtype labels are not manufactured from unavailable supervision.
+3. **AHI input.** AHI is excluded from Stage03 model inputs to prevent target leakage from A/N annotations.
+4. **Causal interpretation.** SCM, ACE and intervention analyses are assumption-dependent observational causal evidence and are not presented as clinical causal proof.
+5. **Quantum interpretation.** Quantum components are implemented and compared as part of the proposed methodology; no quantum-advantage claim is made.
+6. **System identity.** The single Stage06 hybrid checkpoint, the reference QML evaluation system and the final 25/75 integrated system are distinct model configurations.
+7. **Validation interpretation.** The 90.8627% official-x result is project-level evaluation evidence and is not described as pristine prospective external validation.
+8. **Reproduction scope.** The packaged methodology replay begins from prepared Stage02 records and the recorded label-free Stage03 source cache; raw→Stage02 one-click reproduction is not claimed.
+9. **Robustness scope.** Stage10 perturbation results are interpreted only within the perturbation scope recorded in the corresponding manifest.
