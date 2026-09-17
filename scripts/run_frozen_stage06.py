@@ -24,21 +24,21 @@ def verify_bundled_artifact(rel: str) -> Path:
     p=ROOT/rel
     if not p.is_file(): raise FileNotFoundError(p)
     if p.stat().st_size!=row['bytes'] or sha256(p)!=row['sha256']:
-        raise RuntimeError(f'Frozen artifact integrity failure: {rel}')
+        raise RuntimeError(f'Artifact integrity failure: {rel}')
     return p
 
 
 def main() -> None:
-    ap=argparse.ArgumentParser(description='Run the actual frozen guide-native Stage06 checkpoint. Official-x labels are never read.')
+    ap=argparse.ArgumentParser(description='Run the published Stage06 hybrid checkpoint. Official-x labels are never read.')
     ap.add_argument('--stage02-dir', required=True, help='Directory containing {record}_preprocessed.npz files')
     ap.add_argument('--split', choices=['official-x','learn'], default='official-x')
-    ap.add_argument('--output', default='outputs/frozen_stage06_predictions.csv')
+    ap.add_argument('--output', default='outputs/stage06_predictions.csv')
     ap.add_argument('--batch-size', type=int, default=128)
     ap.add_argument('--device', default='auto', choices=['auto','cpu','cuda'])
     ap.add_argument('--records', default='', help='Optional comma-separated record filter, e.g. x01,x02')
-    ap.add_argument('--limit', type=int, default=0, help='Optional first-N row limit for a plumbing smoke test')
-    ap.add_argument('--threshold', type=float, default=None, help='Override frozen Stage06 operating threshold. Default reads FINAL_OPERATING_THRESHOLD.json.')
-    ap.add_argument('--compare-reference', action='store_true', help='Compare probabilities against the bundled frozen Stage06 reference for selected rows.')
+    ap.add_argument('--limit', type=int, default=0, help='Optional first-N row limit for an execution smoke test')
+    ap.add_argument('--threshold', type=float, default=None, help='Override the published Stage06 operating threshold. Default reads FINAL_OPERATING_THRESHOLD.json.')
+    ap.add_argument('--compare-reference', action='store_true', help='Compare probabilities against the bundled Stage06 reference for selected rows.')
     ap.add_argument('--tolerance', type=float, default=1e-4, help='Maximum absolute probability difference allowed by --compare-reference.')
     args=ap.parse_args()
 
@@ -48,7 +48,7 @@ def main() -> None:
         import torch.nn as nn
         import torch.nn.functional as F
     except Exception as e:
-        raise SystemExit(f'Frozen inference requires numpy + torch. Install requirements-inference.txt. Details: {e}')
+        raise SystemExit(f'Stage06 inference requires numpy + torch. Install requirements-inference.txt. Details: {e}')
 
     class TemporalEncoder(nn.Module):
         def __init__(self):
@@ -67,7 +67,7 @@ def main() -> None:
             h,_=self.attn(h,h,h,need_weights=False)
             return torch.cat([h.mean(dim=1),h.max(dim=1).values],dim=1)
 
-    class GuideHybrid(nn.Module):
+    class HybridModel(nn.Module):
         def __init__(self):
             super().__init__()
             self.temporal=TemporalEncoder()
@@ -89,17 +89,16 @@ def main() -> None:
             t=self.temporal(ecg)
             return self.fuse(t,qml8,causal16),t
 
-    # Byte-level trust gate before loading PyTorch/object-NPZ artifacts.
     model_path=verify_bundled_artifact('pretrained/stage06/qml_sleepnet_final_guide_corrected.pt')
     q_path=verify_bundled_artifact('precomputed/stage06_inputs/quantum_features_for_final_stage06.npz')
     c_path=verify_bundled_artifact('precomputed/stage06_inputs/causal16_for_final_stage06.npz')
     ref_path=verify_bundled_artifact('results/guide_stage06/final_predictions.npz')
 
     q=np.load(q_path,allow_pickle=False)
-    # Causal UID arrays in the frozen source were saved as dtype=object; hash is verified above before this trusted load.
+    # The source causal UID arrays use dtype=object; artifact integrity is verified before this trusted load.
     c=np.load(c_path,allow_pickle=True)
     if 'y_test' in q.files or 'y_test' in c.files:
-        raise RuntimeError('Official-x label boundary violated: y_test present in frozen Stage06 inputs.')
+        raise RuntimeError('Official-x label boundary violated: y_test present in Stage06 inputs.')
 
     if args.split=='official-x':
         uids=np.asarray(q['test_uids']).astype(str)
@@ -115,11 +114,11 @@ def main() -> None:
         causal=np.asarray(c['causal16_learn'],dtype=np.float32)
         y=np.asarray(q['y_learn'],dtype=np.int8)
         if not np.array_equal(y,np.asarray(c['y_learn'],dtype=np.int8)):
-            raise RuntimeError('Frozen learn-label alignment mismatch between Stage04 and Stage05 arrays.')
+            raise RuntimeError('Learning-label alignment mismatch between Stage04 and Stage05 arrays.')
         ref_key='learn_probability'
     if not np.array_equal(uids,cu): raise RuntimeError('Stage04/Stage05 UID alignment mismatch.')
-    if qml.shape!=(len(uids),8) or causal.shape!=(len(uids),16): raise RuntimeError('Frozen Stage06 input geometry mismatch.')
-    if not np.isfinite(qml).all() or not np.isfinite(causal).all(): raise RuntimeError('Non-finite frozen Stage06 input features.')
+    if qml.shape!=(len(uids),8) or causal.shape!=(len(uids),16): raise RuntimeError('Stage06 input geometry mismatch.')
+    if not np.isfinite(qml).all() or not np.isfinite(causal).all(): raise RuntimeError('Non-finite Stage06 input features.')
 
     selected=np.arange(len(uids),dtype=np.int64)
     if args.records:
@@ -140,7 +139,7 @@ def main() -> None:
     expected={'encoding':'angle_rx','gate':'causal16_to_gate16_on_causal_branch','clip_sd':4.0,'task':'binary Apnea vs Normal','official_x_labels_used':False}
     for k,v in expected.items():
         if ck.get(k)!=v: raise RuntimeError(f'Checkpoint metadata mismatch: {k} expected={v!r} got={ck.get(k)!r}')
-    model=GuideHybrid().to(device)
+    model=HybridModel().to(device)
     model.load_state_dict(ck['state_dict'],strict=True)
     model.eval()
 
