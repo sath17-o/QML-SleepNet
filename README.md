@@ -1,66 +1,61 @@
-# QML-SleepNet — guide-locked reproducibility repository
+# QML-SleepNet — reproducible research implementation
 
-**Quantum machine learning + causal inference + CNN-BiLSTM for Apnea-ECG sleep-apnea detection**
+**Quantum machine learning, causal inference and CNN-BiLSTM modelling for minute-level sleep-apnea detection using Apnea-ECG**
 
-This repository is source-locked to the **five supplied guide screenshots** in `guide_source/`. The screenshots are hashed in `config/guide_source_manifest.json`; `docs/GUIDE_ALIGNMENT.md` records exactly what is implemented, what was adapted to avoid leakage, what is evidence-only, and what is **not supported / not claimed**.
+This repository presents the implemented research pipeline, model artifacts, evaluation evidence and reproducibility utilities for QML-SleepNet. The methodological specification is documented in `docs/METHODOLOGY_ALIGNMENT.md`, while the five source diagrams supplied for the project are preserved under `guide_source/` with SHA-256 verification in `config/guide_source_manifest.json`.
 
-## Scientific identity: do not conflate these three systems
+## System definitions
 
-| Object | What it is | Role |
+Three related model configurations are reported separately to avoid ambiguity:
+
+| System | Definition | Role |
 |---|---|---|
-| Guide-native Stage06 | frozen `qml_sleepnet_final_guide_corrected.pt` | direct endpoint of the implemented guide core, Task A binary Apnea vs Normal |
-| Canonical reported QML | fixed equal-logit evaluation wrapper | project evaluation system; separate from the single Stage06 checkpoint |
-| Promoted final | fixed 25% physiology + 75% canonical-QML logit fusion | later project-level extension; official-x accuracy **90.8627%** |
+| Stage06 hybrid model | `qml_sleepnet_final_guide_corrected.pt` | single binary Apnea-vs-Normal checkpoint combining QML, temporal and causal representations |
+| Reference QML system | fixed equal-logit QML evaluation configuration | QML-focused comparison system used in the final evaluation |
+| Final integrated system | fixed 25% physiology + 75% QML logit fusion | final QML-inclusive evaluation configuration; official-x accuracy **90.8627%** |
 
-The promoted system is retained because it is the project's designated final evidence result, but it is **not relabeled as the guide-native Stage06 model**.
+These systems are evaluated and reported independently; the final integrated system is not represented as the same object as the Stage06 checkpoint.
 
-## Guide-native implemented core
+## Implemented methodology
 
 ```text
 prepared Stage02 ECG / minute windows
         ↓
-Stage03 feature bank
+Stage03 physiological feature bank
         ↓
 ANOVA → mRMR → SHAP → PCA128
         ↓
 MLP 128 → 64 → 32 → 8
         ↓
-Stage04 QML: Angle/IQP + VQC + fidelity-kernel/QSVC + QT evidence
+Stage04 QML: Angle-Rx / IQP + VQC + fidelity-kernel QSVC + quantum-transformer evaluation
         ↓
-Stage05 PC/FCI/NOTEARS/LiNGAM + SCM + interventions/ACE → causal16
+Stage05 PC / FCI / NOTEARS / LiNGAM + SCM + interventions / ACE → causal16
         ↓
 Stage06 QML8 + CNN-BiLSTM temporal512 + causal gate16
         ↓
 536 → 256 → 128 → 64 → 2 logits
 ```
 
-The frozen Stage04 audited manifest locks 8 qubits, VQC depth 4, 96 quantum parameters, StronglyEntanglingLayers/CNOT, Rz–Ry–Rz and Pauli-Z expectations. The frozen Stage06 manifest locks Conv1D64 kernels 3/5/7, BiLSTM128×2, self-attention, causal gating and the binary Task-A head.
+The Stage04 implementation uses 8 qubits, VQC depth 4, 96 variational quantum parameters, CNOT entanglement, Rz-Ry-Rz rotations and Pauli-Z expectation measurements. The Stage06 temporal branch uses parallel Conv1D kernels, a two-layer bidirectional LSTM, self-attention and a causal-aware fusion pathway.
 
-## Two deliberate scientific non-claims
+## Scope and methodological constraints
 
-- **OSA / CSA / Mixed is not trained or claimed.** The available Apnea-ECG minute target used by this project is A/N; inventing subtype ground truth would be invalid.
-- **AHI is not used as an input feature.** Although AHI appears in the supplied guide feature list, deriving it from the same A/N annotations would leak the target in this implementation.
+- **OSA / CSA / Mixed subtype classification is not claimed.** The minute-level supervision available to this implementation is Apnea/Normal.
+- **AHI is not used as an input feature.** Deriving AHI from the same A/N annotations would introduce target leakage.
+- **No quantum-advantage claim is made.** Quantum components are evaluated as part of the proposed hybrid methodology.
+- The final integrated official-x result is reported as project-level evaluation evidence rather than pristine prospective external validation.
 
-No quantum-advantage claim is made.
-
-## Reviewer path 1 — verify everything without training
+## Reproducibility path 1 — repository verification
 
 ```bash
 python scripts/run_pipeline.py --mode verify
 ```
 
-This checks the guide-source hashes, model/input artifact hashes, guide invariants, final result contracts, all notebook syntax, and repository tests. It uses no dataset and performs no training.
+This verifies the source-diagram hashes, model/input artifact hashes, methodological invariants, result contracts, notebook syntax and repository tests. No training or dataset labels are required.
 
-## Reviewer path 2 — run the actual frozen Stage06 checkpoint
+## Reproducibility path 2 — Stage06 inference
 
-The repository now bundles:
-
-- the actual Stage04 bridge/QML checkpoints;
-- the actual final Stage06 checkpoint;
-- the exact frozen Stage04 QML8 and Stage05 causal16 arrays used by final Stage06;
-- the frozen Stage06 reference probabilities.
-
-Only the prepared Stage02 ECG `.npz` records remain external.
+The repository includes the Stage04 bridge/QML checkpoints, the Stage06 model checkpoint, the QML8 and causal16 arrays consumed by Stage06, and the Stage06 reference probabilities. Prepared Stage02 ECG `.npz` records remain external.
 
 ```bash
 pip install -r requirements-inference.txt
@@ -69,21 +64,19 @@ python scripts/run_pipeline.py --mode inference \
   --compare-reference
 ```
 
-See `docs/INFERENCE.md`.
+A numerical reproduction test was completed on the `x01` Stage02 record. All **522 minute rows** reproduced the stored Stage06 probabilities with maximum absolute difference `9.5367431640625e-07` on CPU, without accessing official-x labels. The machine-readable receipt is `results/validation/FROZEN_STAGE06_X01_REPRODUCTION.json`.
 
-A real end-to-end inference reproduction check was run against the frozen `x01` Stage02 record: all **522 minute rows** reproduced the stored Stage06 probabilities with maximum absolute difference `9.5367431640625e-07` on CPU, without reading official-x labels. The machine-readable receipt is `results/validation/FROZEN_STAGE06_X01_REPRODUCTION.json`.
-
-## Reviewer path 3 — replay the frozen guide-aligned research chain
+## Reproducibility path 3 — methodology replay
 
 ```bash
-python scripts/run_pipeline.py --mode guide-replay --workspace /path/to/QML_SleepNet
+python scripts/run_pipeline.py --mode methodology-replay --workspace /path/to/QML_SleepNet
 ```
 
-This is accurately described as a **prepared-workspace replay**, not a raw-data one-click build. The first packaged producer depends on existing Stage02 outputs and the exact frozen label-free feature cache recorded by the Stage03 manifest. Before recomputation, the runner reproduces the notebook's cache-selection rule and **fails if today's workspace would select a different cache**. It never silently substitutes a newer experiment.
+This is a prepared-workspace replay rather than a raw-data one-click build. Stage03 requires existing Stage02 outputs and the recorded label-free feature cache used by the research pipeline. The runner verifies the expected source state before recomputation and stops if the available workspace would select a different cache.
 
-## Promoted result contract
+## Final evaluation
 
-The project-level promoted frozen fusion records:
+For the final integrated QML-inclusive system:
 
 - official-x: `35` records / `17,248` scored rows;
 - accuracy: `0.9086270871985158` (90.8627%);
@@ -94,35 +87,25 @@ The project-level promoted frozen fusion records:
 - AUPRC: `0.9497755803318464`;
 - prediction SHA-256: `063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f`.
 
-The classical-only benchmark is slightly higher in raw official-x accuracy and is reported rather than hidden.
+The classical physiology-only comparator attains slightly higher raw official-x accuracy (91.0192%); this comparison is retained transparently in the evaluation tables.
 
-## Repository map
+## Repository structure
 
 ```text
 QML-SleepNet/
-├── guide_source/                 # exact five supplied guide screenshots
-├── config/
-│   ├── guide_source_manifest.json
-│   ├── guide_alignment_manifest.json
-│   ├── execution_manifest.json
-│   └── pipeline_contract.json
-├── pretrained/                   # actual frozen .pt checkpoints + hashes
-├── precomputed/stage06_inputs/   # exact frozen QML8 / causal16 arrays
-├── notebooks/guide/              # frozen guide-aligned producer notebooks
-├── notebooks/evidence/           # canonical-QML evidence wrapper
-├── notebooks/promoted_evidence/  # promoted project-level evidence
-├── results/manifests/guide/      # actual guide-stage manifests
-├── results/guide_stage06/        # guide-native Stage06 reference probabilities
-├── scripts/
-│   ├── run_pipeline.py
-│   ├── run_frozen_stage06.py
-│   ├── verify_artifacts.py
-│   ├── check_guide_alignment.py
-│   └── ...
+├── guide_source/                    # archived source diagrams retained for provenance
+├── config/                          # execution, methodology and result contracts
+├── pretrained/                      # versioned model checkpoints + SHA-256 records
+├── precomputed/stage06_inputs/      # QML8 / causal16 arrays used by Stage06
+├── notebooks/guide/                 # original methodology-stage notebooks (legacy path retained)
+├── notebooks/evidence/              # QML evaluation and interpretability evidence
+├── notebooks/promoted_evidence/     # final-system evaluation notebooks (legacy path retained)
+├── results/                         # evaluation tables, manifests and validation receipts
+├── scripts/                         # verification, inference and replay utilities
 └── docs/
-    ├── GUIDE_ALIGNMENT.md
+    ├── METHODOLOGY_ALIGNMENT.md
     ├── INFERENCE.md
     └── FULL_REPRODUCTION.md
 ```
 
-Start with **`docs/GUIDE_ALIGNMENT.md`**. It is intentionally stricter than a marketing README.
+Historical directory and artifact identifiers are retained where necessary for provenance and executable reproducibility; the academic terminology used in the documentation is defined in `docs/METHODOLOGY_ALIGNMENT.md`.
