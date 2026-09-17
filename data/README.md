@@ -10,23 +10,27 @@ Original Apnea-ECG publication: T. Penzel, G. B. Moody, R. G. Mark, A. L. Goldbe
 
 ## Evaluator-ready prepared Stage02 records
 
-The repository keeps source code, model checkpoints and scientific evidence in ordinary Git. The prepared Stage02 `x01`–`x35` records used for executable inference reproduction are distributed as integrity-checked **GitHub Release assets** rather than embedded in Git history.
+The prepared Stage02 `x01`–`x35` records used for executable Stage06 inference reproduction are versioned directly under:
 
-The release configuration is recorded in `config/stage02_release_manifest.json`. Per-record byte counts and SHA-256 values are recorded in `data/STAGE02_OFFICIAL_X_SHA256.csv`.
+```text
+data/stage02_official_x/
+```
 
-Evaluators do not need Google Drive or Git LFS. On Windows:
+Per-record byte counts and SHA-256 values are recorded in `data/STAGE02_OFFICIAL_X_SHA256.csv`.
+
+Evaluators do not need Google Drive, Git LFS or a separate release download. On Windows:
 
 ```bat
 RUN_DEMO.bat
 ```
 
-automatically downloads and verifies the first release asset and reproduces `x01`. For the complete 35-record reference comparison:
+verifies and reproduces `x01`. For the complete 35-record reference comparison:
 
 ```bat
 RUN_FULL_EVALUATION.bat
 ```
 
-The download utility validates both the release-asset SHA-256 values and every extracted Stage02 record before inference is allowed to run.
+Both entry points fail closed if the required prepared data are missing or do not match the recorded hashes.
 
 ## Manual Stage06 input
 
