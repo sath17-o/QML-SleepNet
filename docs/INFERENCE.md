@@ -1,6 +1,6 @@
 # Stage06 inference
 
-The repository includes the Stage06 checkpoint and the exact Stage04-QML / Stage05-causal representation arrays consumed by that checkpoint. The source data are from the PhysioNet Apnea-ECG Database; evaluator-ready prepared Stage02 official-test records are distributed separately as integrity-checked GitHub Release assets so the Git repository itself remains compact.
+The repository includes the Stage06 checkpoint, the exact Stage04-QML / Stage05-causal representation arrays consumed by that checkpoint, and the prepared Stage02 official-test records required for executable evaluator reproduction.
 
 ## Requirements
 
@@ -8,23 +8,25 @@ The repository includes the Stage06 checkpoint and the exact Stage04-QML / Stage
 pip install -r requirements-inference.txt
 ```
 
-## Evaluator-ready data setup
+## Evaluator-ready data verification
 
-Download and verify `x01`–`x35` automatically from the repository release:
+The prepared `x01`–`x35` Stage02 records are versioned directly under `data/stage02_official_x/`.
+
+Verify all 35 files against the repository checksum manifest:
 
 ```bash
 python scripts/setup_evaluator_data.py --mode full
 ```
 
-The setup script validates both the release-asset SHA-256 values in `config/stage02_release_manifest.json` and the individual record hashes in `data/STAGE02_OFFICIAL_X_SHA256.csv`. The verified files are extracted to `data/stage02_official_x/`.
-
-For a quick `x01` demonstration, use:
+For a quick `x01` integrity check:
 
 ```bash
 python scripts/setup_evaluator_data.py --mode demo
 ```
 
-On Windows, `RUN_DEMO.bat` and `RUN_FULL_EVALUATION.bat` automate environment setup, data preparation and inference.
+The verifier checks the individual record byte counts and SHA-256 values in `data/STAGE02_OFFICIAL_X_SHA256.csv`. It does not download data.
+
+On Windows, `RUN_DEMO.bat` and `RUN_FULL_EVALUATION.bat` automate environment setup, data verification and inference.
 
 ## Run
 
