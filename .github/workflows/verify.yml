@@ -20,3 +20,12 @@ jobs:
         run: python scripts/run_pipeline.py --mode verify
       - name: Reproduce final integrated 25/75 evaluation
         run: python scripts/run_final_integrated_evaluation.py
+      - name: Reproduce final integrated evaluation with Windows-style CRLF labels
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('precomputed/final_integrated_inputs/OFFICIAL_X_EVALUATION_LABELS.csv')
+          data = p.read_bytes().replace(b'\r\n', b'\n').replace(b'\r', b'\n')
+          p.write_bytes(data.replace(b'\n', b'\r\n'))
+          PY
+          python scripts/run_final_integrated_evaluation.py

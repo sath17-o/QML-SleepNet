@@ -8,13 +8,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_final_integrated_manifest_contract():
     cfg = json.loads((ROOT / "config" / "final_integrated_execution_manifest.json").read_text(encoding="utf-8"))
-    assert cfg["schema_version"] == 2
+    assert cfg["schema_version"] == 3
     assert cfg["rows"] == 17248
     assert cfg["physiology_weight"] == 0.25
     assert cfg["qml_weight"] == 0.75
     assert cfg["hard_threshold"] == 0.5
     assert cfg["fusion"] == "weighted logit mean followed by sigmoid"
     assert cfg["official_x_labels_used_for_fusion_or_model_selection"] is False
+
+    labels = cfg["inputs"]["evaluation_labels"]
+    assert labels["canonical_lf_sha256"] == "de7abc9218a902f3867de617cea477e6db7a7de2763fe4db5ba3d0fcf7289730"
+    assert labels["repository_lf_sha256"] == labels["canonical_lf_sha256"]
+    assert "CRLF" in labels["line_ending_policy"]
 
     sem = cfg["semantic_reproduction_contract"]
     assert sem["uid_sha256"] == "957dd53b9ff7aa03e8b554ea34c426d074259341a980b89d74e752c21158a641"
@@ -33,3 +38,5 @@ def test_final_integrated_manifest_contract():
 def test_final_integrated_runner_syntax():
     source = (ROOT / "scripts" / "run_final_integrated_evaluation.py").read_text(encoding="utf-8")
     compile(source, "scripts/run_final_integrated_evaluation.py", "exec")
+    assert "canonical_lf_sha256" in source
+    assert "check_label_file" in source
