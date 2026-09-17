@@ -46,6 +46,7 @@ No quantum-advantage claim is made.
 ## Reviewer path 1 — verify everything without training
 
 ```bash
+pip install -r requirements-verify.txt
 python scripts/run_pipeline.py --mode verify
 ```
 

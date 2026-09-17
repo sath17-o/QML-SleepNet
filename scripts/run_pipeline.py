@@ -12,13 +12,12 @@ def verify_local():
     run([sys.executable,str(ROOT/'scripts/verify_artifacts.py')])
     run([sys.executable,str(ROOT/'scripts/verify_results.py')])
     run([sys.executable,str(ROOT/'scripts/audit_notebooks.py')])
-    # Tests use standard-library pytest only when pytest is available; otherwise equivalent core checks above remain authoritative.
+    # Repository tests are part of verification and must not be silently skipped.
     try:
         import pytest  # noqa
-    except Exception:
-        print('pytest not installed: repository unit tests skipped (core verification already passed).')
-    else:
-        run([sys.executable,'-m','pytest','-q',str(ROOT/'tests')])
+    except Exception as exc:
+        raise SystemExit('pytest is required for verify mode. Install requirements-verify.txt first.') from exc
+    run([sys.executable,'-m','pytest','-q',str(ROOT/'tests')])
 
 def missing(workspace, rels): return [rel for rel in rels if not (workspace/rel).exists()]
 
