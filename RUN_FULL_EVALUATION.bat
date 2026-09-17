@@ -28,7 +28,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo Downloading and verifying all 35 prepared Stage02 records from the GitHub Release...
+echo Verifying all 35 bundled Stage02 evaluator records...
 .venv\Scripts\python.exe scripts\setup_evaluator_data.py --mode full
 if errorlevel 1 exit /b 1
 
