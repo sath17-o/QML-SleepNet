@@ -24,6 +24,14 @@ RUN_FULL_EVALUATION.bat
 
 The full run validates all 35 prepared Stage02 records by byte count and SHA-256 before inference. See `docs/EVALUATOR_RUN.md`.
 
+To reproduce the final reported project-level 25% physiology + 75% QML integrated evaluation configuration:
+
+```bat
+RUN_FINAL_INTEGRATED_EVALUATION.bat
+```
+
+This verifies the two versioned parent prediction artifacts and the scoring-only official-x label file, reconstructs the fixed weighted-logit fusion over all 17,248 UIDs, verifies semantic fingerprints and published metrics, and writes regenerated predictions/metrics locally. See `docs/FINAL_INTEGRATED_EVALUATION.md`.
+
 ## System definitions
 
 Three related model configurations are reported separately to avoid ambiguity:
@@ -89,7 +97,18 @@ The first command performs a local integrity check; it does not download data.
 
 A numerical reproduction test was completed on the `x01` Stage02 record. All **522 minute rows** reproduced the stored Stage06 probabilities with maximum absolute difference `9.5367431640625e-07` on the recorded CPU environment, without accessing official-x labels. The machine-readable receipt is `results/validation/FROZEN_STAGE06_X01_REPRODUCTION.json`.
 
-## Reproducibility path 3 — methodology replay
+## Reproducibility path 3 — final integrated evaluation replay
+
+```bash
+pip install -r requirements-final-evaluation.txt
+python scripts/run_final_integrated_evaluation.py
+```
+
+This is an executable replay of the final fixed project-level fusion from versioned parent predictions. It does **not** retrain either parent model and is separate from the Stage06 checkpoint inference path. The QML and physiology parent UIDs must match exactly before fusion. Official-x labels are loaded only for scoring after the fused predictions have been fixed.
+
+Cross-environment verification is based on exact parent SHA-256 values, exact UID ordering, deterministic probability and hard-prediction fingerprints, the confusion matrix, and the published metrics. The historical frozen compressed NPZ SHA-256 is retained for provenance, but regenerated compressed-container bytes are not required to be identical across NumPy/platform environments.
+
+## Reproducibility path 4 — methodology replay
 
 ```bash
 python scripts/run_pipeline.py --mode methodology-replay --workspace /path/to/QML_SleepNet
@@ -102,13 +121,16 @@ This is a prepared-workspace replay rather than a raw-data one-click build. Stag
 For the final integrated QML-inclusive system:
 
 - official-x: `35` records / `17,248` scored rows;
+- physiology/QML weights: `0.25 / 0.75` in logit space;
+- hard threshold: `0.5`;
 - accuracy: `0.9086270871985158` (90.8627%);
 - balanced accuracy: `0.9076848836674374`;
 - F1: `0.882475764354959`;
 - MCC: `0.8084026100817799`;
 - AUROC: `0.9675236374617686`;
 - AUPRC: `0.9497755803318464`;
-- prediction SHA-256: `063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f`.
+- confusion matrix: `TN=9755, FP=946, FN=630, TP=5917`;
+- historical frozen prediction NPZ SHA-256: `063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f`.
 
 The classical physiology-only comparator attains slightly higher raw official-x accuracy (91.0192%); this comparison is retained transparently in the evaluation tables.
 
@@ -125,6 +147,7 @@ QML-SleepNet/
 ├── data/stage02_official_x/         # prepared x01-x35 evaluator Stage02 records
 ├── pretrained/                      # versioned model checkpoints + SHA-256 records
 ├── precomputed/stage06_inputs/      # QML8 / causal16 arrays used by Stage06
+├── precomputed/final_integrated_inputs/ # versioned final-fusion parent predictions + scoring labels
 ├── notebooks/guide/                 # original methodology-stage notebooks (legacy path retained)
 ├── notebooks/evidence/              # QML evaluation and interpretability evidence
 ├── notebooks/promoted_evidence/     # final-system evaluation notebooks (legacy path retained)
@@ -133,6 +156,7 @@ QML-SleepNet/
 └── docs/
     ├── METHODOLOGY_ALIGNMENT.md
     ├── EVALUATOR_RUN.md
+    ├── FINAL_INTEGRATED_EVALUATION.md
     ├── INFERENCE.md
     └── FULL_REPRODUCTION.md
 ```
