@@ -29,5 +29,7 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Frozen submission checkpoints are intentionally versioned (all are < GitHub's per-file limit)
+# Versioned submission checkpoints are intentionally tracked (all are below GitHub's per-file limit)
 !pretrained/**/*.pt
+
+# Evaluator Stage02 records under data/stage02_official_x/ are intentionally versioned.
