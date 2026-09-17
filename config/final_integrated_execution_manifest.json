@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "system": "Final integrated QML-inclusive project-level evaluation configuration",
+  "rows": 17248,
+  "physiology_weight": 0.25,
+  "qml_weight": 0.75,
+  "fusion": "weighted logit mean followed by sigmoid",
+  "hard_threshold": 0.5,
+  "inputs": {
+    "qml_parent": {
+      "path": "precomputed/final_integrated_inputs/FINAL_FIXED_EQUAL_LOGIT_X_PREDICTIONS_FROZEN_BEFORE_SCORING.npz",
+      "sha256": "f121a79191be00a28f33e06e7dec20cc689268b10a988c52e21284c90d1e2eef",
+      "field": "ensemble_hmm_logit_mean"
+    },
+    "physiology_parent": {
+      "path": "precomputed/final_integrated_inputs/DEV35_STAGE15A_PHYSIO_BOOSTING_X_PREDICTIONS_FROZEN_BEFORE_SCORING.npz",
+      "sha256": "e548af5c1d8ad39f8ea192680ee7ae7af303b993e65f410ea2ee18f015e3e244",
+      "field": "hmm_apnea_posterior"
+    },
+    "evaluation_labels": {
+      "path": "precomputed/final_integrated_inputs/OFFICIAL_X_EVALUATION_LABELS.csv",
+      "sha256": "de7abc9218a902f3867de617cea477e6db7a7de2763fe4db5ba3d0fcf7289730",
+      "source": "FINAL_FIXED_EQUAL_LOGIT_POSTHOC_X_PREDICTIONS.csv",
+      "source_sha256": "9a9d17ab4d5d17c7d42514f6b51633726f729f6d7fd1a40350d46eecdf06db43",
+      "usage": "scoring only after final predictions are fixed"
+    }
+  },
+  "expected_output": {
+    "path": "outputs/final_integrated_predictions.npz",
+    "sha256": "063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f"
+  },
+  "expected_metrics": {
+    "accuracy": 0.9086270871985158,
+    "balanced_accuracy": 0.9076848836674374,
+    "precision": 0.8621594055077955,
+    "sensitivity": 0.9037727203299221,
+    "specificity": 0.9115970470049528,
+    "f1": 0.882475764354959,
+    "mcc": 0.8084026100817799,
+    "auroc": 0.9675236374617686,
+    "auprc": 0.9497755803318464,
+    "brier": 0.0796448443135515,
+    "nll": 0.4334665417947636,
+    "tn": 9755,
+    "fp": 946,
+    "fn": 630,
+    "tp": 5917
+  },
+  "scope": "Project-level final evaluation replay. This reproduces the fixed 25/75 fusion from versioned parent predictions; it does not retrain either parent model and is not a raw-data end-to-end rebuild.",
+  "official_x_labels_used_for_fusion_or_model_selection": false
+}
