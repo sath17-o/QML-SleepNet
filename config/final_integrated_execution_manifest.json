@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "system": "Final integrated QML-inclusive project-level evaluation configuration",
   "rows": 17248,
   "physiology_weight": 0.25,
@@ -19,7 +19,9 @@
     },
     "evaluation_labels": {
       "path": "precomputed/final_integrated_inputs/OFFICIAL_X_EVALUATION_LABELS.csv",
-      "sha256": "de7abc9218a902f3867de617cea477e6db7a7de2763fe4db5ba3d0fcf7289730",
+      "canonical_lf_sha256": "de7abc9218a902f3867de617cea477e6db7a7de2763fe4db5ba3d0fcf7289730",
+      "repository_lf_sha256": "de7abc9218a902f3867de617cea477e6db7a7de2763fe4db5ba3d0fcf7289730",
+      "line_ending_policy": "Integrity is checked after canonicalizing CRLF/CR to LF so Windows core.autocrlf does not change the scientific label-content contract. .gitattributes also pins this path to eol=lf for fresh clones.",
       "source": "FINAL_FIXED_EQUAL_LOGIT_POSTHOC_X_PREDICTIONS.csv",
       "source_sha256": "9a9d17ab4d5d17c7d42514f6b51633726f729f6d7fd1a40350d46eecdf06db43",
       "usage": "scoring only after final predictions are fixed"
