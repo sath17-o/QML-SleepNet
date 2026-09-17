@@ -4,7 +4,7 @@ This guide provides the shortest reproducible path for executing QML-SleepNet on
 
 ## Windows quick demonstration
 
-Prerequisite: Python 3.11 with the Windows `py` launcher and an internet connection.
+Prerequisite: Python 3.11 with the Windows `py` launcher and an internet connection for dependency installation if the local virtual environment is not already prepared.
 
 From the repository root:
 
@@ -16,11 +16,9 @@ The script performs the following operations automatically:
 
 1. creates `.venv` with Python 3.11 when it is not already present;
 2. installs `requirements-inference.txt` when NumPy/PyTorch are not already available in that environment;
-3. downloads the first evaluator-data asset from the repository's `evaluator-data-v1` GitHub Release;
-4. validates the release-asset SHA-256 value recorded in `config/stage02_release_manifest.json`;
-5. extracts the prepared Stage02 records and validates their individual byte counts and SHA-256 values against `data/STAGE02_OFFICIAL_X_SHA256.csv`;
-6. runs the published Stage06 checkpoint on `x01` using CPU inference; and
-7. compares the recomputed probabilities with the stored Stage06 reference probabilities.
+3. verifies the bundled `data/stage02_official_x/x01_preprocessed.npz` file against the recorded byte count and SHA-256 value;
+4. runs the published Stage06 checkpoint on `x01` using CPU inference; and
+5. compares the recomputed probabilities with the stored Stage06 reference probabilities.
 
 The successful terminal condition is:
 
@@ -39,7 +37,7 @@ On Windows:
 RUN_FULL_EVALUATION.bat
 ```
 
-This downloads all five release assets, verifies and extracts `x01` through `x35`, and runs the complete official-x Stage06 reference comparison. Official-x labels are not read by the inference path.
+The script verifies all 35 prepared Stage02 records bundled under `data/stage02_official_x/` against `data/STAGE02_OFFICIAL_X_SHA256.csv` and then runs the complete official-x Stage06 reference comparison. Official-x labels are not read by the inference path.
 
 The successful terminal condition is:
 
@@ -73,7 +71,7 @@ The prepared Stage02 files correspond to the `x01`–`x35` official test recordi
 - DOI: `10.13026/C23W2R`
 - file license: Open Data Commons Attribution License v1.0
 
-The release assets contain prepared ECG representations used by the published Stage06 model. Their integrity is fixed by two levels of SHA-256 verification: release-asset hashes and per-record hashes.
+The prepared ECG representations used by the published Stage06 model are versioned directly in the repository. Their integrity is fixed by `data/STAGE02_OFFICIAL_X_SHA256.csv`.
 
 ## What this test demonstrates
 
