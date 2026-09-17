@@ -1,44 +1,44 @@
-# Reproduction modes and what they mean
+# Reproduction modes
 
-The repository deliberately distinguishes **verification**, **frozen inference**, **prepared-workspace guide replay**, and **project-level promoted evidence**.
+The repository separates four reproducibility tasks: **repository verification**, **Stage06 inference**, **prepared-workspace methodology replay**, and **final-system evidence replay**.
 
-## 1. Frozen verification — no dataset, no training
+## 1. Repository verification — no dataset and no training
 
 ```bash
 python scripts/run_pipeline.py --mode verify
 ```
 
-Checks guide-image hashes, frozen-artifact hashes, guide-alignment invariants, headline result contracts, notebook syntax, and repository tests.
+This checks source-diagram hashes, model/input artifact hashes, methodological invariants, headline result contracts, notebook syntax and repository tests.
 
-## 2. Frozen guide-native Stage06 inference
+## 2. Stage06 inference
 
 ```bash
 python scripts/run_pipeline.py --mode inference --stage02-dir /path/to/stage02_preprocessed --compare-reference
 ```
 
-The Stage06 model + Stage04 QML8 + Stage05 causal16 are bundled. Only Stage02 preprocessed ECG records are external.
+The Stage06 model, Stage04 QML8 representation and Stage05 causal16 representation are included. Only prepared Stage02 ECG records are external.
 
-## 3. Prepared-workspace guide replay
-
-```bash
-python scripts/run_pipeline.py --mode guide-replay --workspace /path/to/QML_SleepNet
-```
-
-This executes the frozen scientific notebooks in dependency order and checks each output manifest. It is **not called raw-from-scratch reproduction** because the Stage03 rebuild requires:
-
-- `data/processed/stage02_preprocessed/`
-- the exact frozen label-free feature-cache directory recorded in `STAGE03_GUIDE_REBUILD_MANIFEST.json` (`15A_feature_bank_v1_4_1/...` in the frozen run). The notebook can search several cache roots; the runner preflights that search and refuses recomputation if the current workspace would select a different cache.
-
-No verified standalone raw-PhysioNet→Stage02 producer is packaged in this frozen chain, so the repository states that limitation instead of hiding it.
-
-The runner edits only temporary notebook copies to replace the Colab project-root path and remove Drive-mount / notebook package-install lines. It fails closed on missing prerequisites.
-
-## 4. Project-level promoted evidence replay
+## 3. Prepared-workspace methodology replay
 
 ```bash
-python scripts/run_pipeline.py --mode promoted-evidence --workspace /path/to/QML_SleepNet
+python scripts/run_pipeline.py --mode methodology-replay --workspace /path/to/QML_SleepNet
 ```
 
-This is separate from guide-native model training. It reconstructs evidence for the later frozen 25% physiology + 75% canonical-QML promoted fusion when its parent artifacts are present.
+The replay executes the research notebooks in dependency order and verifies each declared output contract. It is not described as raw-data end-to-end reproduction because the Stage03 rebuild requires:
 
-`--mode full` means **prepared-workspace guide replay + promoted evidence replay**. It does not mean raw-data one-click reproduction.
+- `data/processed/stage02_preprocessed/`; and
+- the exact label-free feature-cache directory recorded by the Stage03 research manifest (`15A_feature_bank_v1_4_1/...` for the published run).
+
+The Stage03 notebook searches multiple cache roots. Before execution, the runner reproduces that selection rule and stops if the current workspace would select a different cache. This prevents unintentional substitution of a different experimental source state.
+
+No independently verified raw-PhysioNet→Stage02 producer is included in this repository. The runner modifies only temporary notebook copies to replace the Colab project-root path and remove Drive-mount/package-install cells; the scientific notebook code is otherwise unchanged.
+
+## 4. Final-system evidence replay
+
+```bash
+python scripts/run_pipeline.py --mode final-evidence --workspace /path/to/QML_SleepNet
+```
+
+This reconstructs the later 25% physiology + 75% reference-QML integration evidence when its parent artifacts are present. It is distinct from Stage06 model training.
+
+`--mode full` runs the prepared-workspace methodology replay followed by the final-system evidence replay. It does not imply raw-data one-click reproduction.
