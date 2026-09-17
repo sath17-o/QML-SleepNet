@@ -23,11 +23,15 @@ executed_notebooks/
 *.h5
 *.hdf5
 
+# Evaluator data downloaded from GitHub Release
+data/stage02_official_x/
+data/.evaluator_release_cache/
+
 # OS/editor
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
 
-# Frozen submission checkpoints are intentionally versioned (all are < GitHub's per-file limit)
+# Versioned submission checkpoints are intentionally tracked (all are below GitHub's per-file limit)
 !pretrained/**/*.pt
