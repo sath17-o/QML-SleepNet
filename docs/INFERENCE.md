@@ -1,30 +1,23 @@
-# Frozen Stage06 inference
+# Stage06 inference
 
-The repository bundles the **actual frozen Stage06 checkpoint** and the exact frozen Stage04-QML / Stage05-causal feature arrays consumed by that checkpoint. It does **not** redistribute PhysioNet ECG records.
+The repository includes the Stage06 checkpoint and the exact Stage04-QML / Stage05-causal representation arrays consumed by that checkpoint. PhysioNet ECG records are not redistributed.
 
-Required external input is therefore only the prepared Stage02 record directory:
-
-```text
-stage02_preprocessed/
-├── x01_preprocessed.npz
-├── x02_preprocessed.npz
-├── ...
-└── x35_preprocessed.npz
-```
-
-Each record must contain `ecg_filtered`, `fs`, and `n_epochs`. The runner enforces `fs=100` and `len(ecg_filtered)=n_epochs*6000`.
-
-Run official-x inference:
+## Requirements
 
 ```bash
-python scripts/run_frozen_stage06.py \
+pip install -r requirements-inference.txt
+```
+
+## Run
+
+```bash
+python scripts/run_pipeline.py --mode inference \
   --stage02-dir /path/to/stage02_preprocessed \
-  --split official-x \
   --compare-reference
 ```
 
-The script reproduces the exact Stage06 inference preprocessing from the frozen training notebook: per-record z-score, clip ±4 SD, 60-s windows, QML8 + causal16 alignment by UID, the frozen CNN-BiLSTM/causal-gate architecture, softmax class-1 probability, and the learning-OOF-selected operating threshold `0.415` from `FINAL_OPERATING_THRESHOLD.json`.
+Each Stage02 record must provide the prepared ECG representation expected by the published Stage06 model. The inference implementation applies the same per-record z-score normalization, ±4 SD clipping and 60-s window geometry used in the research run, aligns QML8 and causal16 by UID, reconstructs the CNN-BiLSTM/causal-gate model, and produces class-1 probabilities using the learning-OOF-selected operating threshold `0.415` unless explicitly overridden.
 
-`--compare-reference` compares the generated probabilities with `results/guide_stage06/final_predictions.npz`. It does not access official-x labels.
+For official-x inference, evaluation labels are not read. A numerical reproduction receipt for record `x01` is provided in `results/validation/FROZEN_STAGE06_X01_REPRODUCTION.json`.
 
-For a small plumbing check, add `--limit 32`; do not treat a limited run as the full reported evaluation.
+The bundled QML8 and causal16 arrays cover the project records represented in the published artifacts. Applying the model to an arbitrary new patient requires execution of the corresponding upstream feature, QML and causal-representation stages; this repository does not claim arbitrary raw-ECG inference from the Stage06 checkpoint alone.
