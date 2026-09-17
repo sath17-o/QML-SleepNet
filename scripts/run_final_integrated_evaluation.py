@@ -31,7 +31,17 @@ EXPECTED = {
     "qml_sha256": "f121a79191be00a28f33e06e7dec20cc689268b10a988c52e21284c90d1e2eef",
     "physiology_sha256": "e548af5c1d8ad39f8ea192680ee7ae7af303b993e65f410ea2ee18f015e3e244",
     "labels_sha256": "de7abc9218a902f3867de617cea477e6db7a7de2763fe4db5ba3d0fcf7289730",
-    "final_npz_sha256": "063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f",
+    # Historical frozen container hash retained for provenance only. A newly
+    # serialized NPZ is not required to be byte-identical across numerical
+    # library/platform combinations.
+    "published_reference_npz_sha256": "063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f",
+    # Cross-environment semantic fingerprints derived from the historical
+    # frozen artifact. Probability is quantized at 1e-13 resolution before
+    # hashing, which is far tighter than any decision/metric tolerance here.
+    "uid_sha256": "957dd53b9ff7aa03e8b554ea34c426d074259341a980b89d74e752c21158a641",
+    "prediction_sha256": "fe3f3d2da3c6d2993ec3dbe50749e8512e606bfeb1dbb2c0a06be9a71f5ca9fd",
+    "probability_quantization_scale": 10_000_000_000_000,
+    "probability_quantized_sha256": "d82db455a3570b01d212f21d57d99b0f88997caa18ad5770155e411515e3845b",
     "n": 17248,
     "physiology_weight": 0.25,
     "qml_weight": 0.75,
@@ -78,6 +88,26 @@ def logit(p: np.ndarray) -> np.ndarray:
 
 def sigmoid(x: np.ndarray) -> np.ndarray:
     return 1.0 / (1.0 + np.exp(-x))
+
+
+def uid_fingerprint(uids: np.ndarray) -> str:
+    h = hashlib.sha256()
+    for uid in np.asarray(uids, dtype=str):
+        b = uid.encode("utf-8")
+        h.update(len(b).to_bytes(4, "little", signed=False))
+        h.update(b)
+    return h.hexdigest()
+
+
+def prediction_fingerprint(prediction: np.ndarray) -> str:
+    a = np.asarray(prediction, dtype=np.int8)
+    return hashlib.sha256(a.tobytes(order="C")).hexdigest()
+
+
+def quantized_probability_fingerprint(probability: np.ndarray) -> str:
+    scale = int(EXPECTED["probability_quantization_scale"])
+    quantized = np.rint(np.asarray(probability, dtype=np.float64) * scale).astype("<i8", copy=False)
+    return hashlib.sha256(quantized.tobytes(order="C")).hexdigest()
 
 
 def load_labels(path: Path) -> tuple[np.ndarray, np.ndarray]:
@@ -156,6 +186,10 @@ def main() -> None:
     if not np.array_equal(qml_uids, phys_uids):
         raise RuntimeError("QML and physiology parent UIDs are not exactly aligned")
 
+    uid_hash = uid_fingerprint(qml_uids)
+    if uid_hash != EXPECTED["uid_sha256"]:
+        raise RuntimeError(f"UID fingerprint mismatch: expected={EXPECTED['uid_sha256']} got={uid_hash}")
+
     physiology = np.asarray(phys["hmm_apnea_posterior"], dtype=np.float64)
     qml_probability = np.asarray(qml["ensemble_hmm_logit_mean"], dtype=np.float64)
     w_phys = np.float64(EXPECTED["physiology_weight"])
@@ -165,6 +199,18 @@ def main() -> None:
     # Fixed project-level fusion: weighted mean in logit space, then sigmoid.
     fused_probability = sigmoid(w_phys * logit(physiology) + w_qml * logit(qml_probability))
     prediction = (fused_probability >= threshold).astype(np.int8)
+
+    probability_hash = quantized_probability_fingerprint(fused_probability)
+    if probability_hash != EXPECTED["probability_quantized_sha256"]:
+        raise RuntimeError(
+            "Fused-probability semantic fingerprint mismatch: "
+            f"expected={EXPECTED['probability_quantized_sha256']} got={probability_hash}"
+        )
+    pred_hash = prediction_fingerprint(prediction)
+    if pred_hash != EXPECTED["prediction_sha256"]:
+        raise RuntimeError(
+            f"Hard-prediction fingerprint mismatch: expected={EXPECTED['prediction_sha256']} got={pred_hash}"
+        )
 
     output = (ROOT / args.output).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -179,14 +225,10 @@ def main() -> None:
         prediction=prediction,
         hard_threshold=threshold,
     )
+    regenerated_container_hash = sha256(output)
 
-    final_hash = sha256(output)
-    if final_hash != EXPECTED["final_npz_sha256"]:
-        raise RuntimeError(
-            f"Final prediction artifact hash mismatch: expected={EXPECTED['final_npz_sha256']} got={final_hash}"
-        )
-
-    # Official-x labels are deliberately loaded only after predictions have been fixed and hashed.
+    # Official-x labels are deliberately loaded only after predictions have
+    # been fixed and their cross-environment semantic fingerprints verified.
     label_uids, y_true = load_labels(LABEL_PATH)
     if not np.array_equal(label_uids, qml_uids):
         raise RuntimeError("Evaluation-label UIDs are not exactly aligned with the fixed prediction UIDs")
@@ -206,7 +248,12 @@ def main() -> None:
         "hard_threshold": float(threshold),
         "official_x_labels_used_for_fusion_or_model_selection": False,
         "official_x_labels_loaded_only_after_predictions_fixed": True,
-        "prediction_artifact_sha256": final_hash,
+        "historical_reference_npz_sha256": EXPECTED["published_reference_npz_sha256"],
+        "regenerated_npz_sha256": regenerated_container_hash,
+        "uid_sha256": uid_hash,
+        "prediction_sha256": pred_hash,
+        "probability_quantization_scale": EXPECTED["probability_quantization_scale"],
+        "probability_quantized_sha256": probability_hash,
         "metrics": metrics,
     }, indent=2) + "\n", encoding="utf-8")
 
@@ -218,6 +265,11 @@ def main() -> None:
     print(f"Hard threshold: {threshold}")
     print("Official-x labels used for fusion/model selection: NO")
     print("Official-x labels loaded for scoring only after predictions were fixed: YES")
+    print(f"UID fingerprint: {uid_hash}")
+    print(f"Probability semantic fingerprint (1e-13): {probability_hash}")
+    print(f"Hard-prediction fingerprint: {pred_hash}")
+    print(f"Historical frozen NPZ SHA-256 (provenance): {EXPECTED['published_reference_npz_sha256']}")
+    print(f"Regenerated NPZ SHA-256 (environment-specific container): {regenerated_container_hash}")
     print(f"Accuracy: {metrics['accuracy']:.16f}")
     print(f"Balanced accuracy: {metrics['balanced_accuracy']:.16f}")
     print(f"F1: {metrics['f1']:.16f}")
@@ -225,7 +277,6 @@ def main() -> None:
     print(f"AUROC: {metrics['auroc']:.16f}")
     print(f"AUPRC: {metrics['auprc']:.16f}")
     print(f"TN={metrics['tn']} FP={metrics['fp']} FN={metrics['fn']} TP={metrics['tp']}")
-    print(f"Prediction artifact SHA-256: {final_hash}")
     print(f"Wrote predictions -> {output}")
     print(f"Wrote metrics -> {metrics_output}")
     print("FINAL INTEGRATED REPRODUCTION PASS")
