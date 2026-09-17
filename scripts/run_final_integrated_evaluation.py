@@ -30,14 +30,8 @@ LABEL_PATH = INPUT_DIR / "OFFICIAL_X_EVALUATION_LABELS.csv"
 EXPECTED = {
     "qml_sha256": "f121a79191be00a28f33e06e7dec20cc689268b10a988c52e21284c90d1e2eef",
     "physiology_sha256": "e548af5c1d8ad39f8ea192680ee7ae7af303b993e65f410ea2ee18f015e3e244",
-    "labels_sha256": "de7abc9218a902f3867de617cea477e6db7a7de2763fe4db5ba3d0fcf7289730",
-    # Historical frozen container hash retained for provenance only. A newly
-    # serialized NPZ is not required to be byte-identical across numerical
-    # library/platform combinations.
+    "labels_canonical_lf_sha256": "de7abc9218a902f3867de617cea477e6db7a7de2763fe4db5ba3d0fcf7289730",
     "published_reference_npz_sha256": "063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f",
-    # Cross-environment semantic fingerprints derived from the historical
-    # frozen artifact. Probability is quantized at 1e-13 resolution before
-    # hashing, which is far tighter than any decision/metric tolerance here.
     "uid_sha256": "957dd53b9ff7aa03e8b554ea34c426d074259341a980b89d74e752c21158a641",
     "prediction_sha256": "fe3f3d2da3c6d2993ec3dbe50749e8512e606bfeb1dbb2c0a06be9a71f5ca9fd",
     "probability_quantization_scale": 10_000_000_000_000,
@@ -72,13 +66,38 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def check_file(path: Path, expected_hash: str) -> None:
+def canonical_lf_sha256(path: Path) -> str:
+    """Hash text content after canonicalizing CRLF/CR line endings to LF.
+
+    Git may materialize text files with CRLF on Windows when core.autocrlf is
+    enabled. Line-ending representation is not part of the scientific label
+    content, so the evaluator contract hashes the canonical LF byte stream.
+    """
+    data = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+    return hashlib.sha256(data).hexdigest()
+
+
+def check_binary_file(path: Path, expected_hash: str) -> None:
     if not path.is_file():
         raise RuntimeError(f"Missing required file: {path}")
     actual = sha256(path)
     if actual != expected_hash:
         raise RuntimeError(f"SHA-256 mismatch for {path.name}: expected={expected_hash} got={actual}")
     print(f"PASS input {path.name} {actual}")
+
+
+def check_label_file(path: Path, expected_canonical_hash: str) -> tuple[str, str]:
+    if not path.is_file():
+        raise RuntimeError(f"Missing required file: {path}")
+    raw_hash = sha256(path)
+    canonical_hash = canonical_lf_sha256(path)
+    if canonical_hash != expected_canonical_hash:
+        raise RuntimeError(
+            f"Canonical LF SHA-256 mismatch for {path.name}: "
+            f"expected={expected_canonical_hash} got={canonical_hash}; raw={raw_hash}"
+        )
+    print(f"PASS input {path.name} canonical-LF {canonical_hash} (raw {raw_hash})")
+    return raw_hash, canonical_hash
 
 
 def logit(p: np.ndarray) -> np.ndarray:
@@ -146,28 +165,30 @@ def metric_dict(y_true: np.ndarray, probability: np.ndarray, prediction: np.ndar
 
 
 def assert_metrics(actual: dict[str, float | int]) -> None:
-    exact_ints = ["n", "tn", "fp", "fn", "tp"]
-    floats = [
-        "accuracy", "balanced_accuracy", "precision", "sensitivity", "specificity",
-        "f1", "mcc", "auroc", "auprc", "brier", "nll",
-    ]
-    for key in exact_ints:
+    for key in ["n", "tn", "fp", "fn", "tp"]:
         if int(actual[key]) != int(EXPECTED[key]):
             raise RuntimeError(f"Metric mismatch for {key}: expected={EXPECTED[key]} got={actual[key]}")
-    for key in floats:
+    for key in [
+        "accuracy", "balanced_accuracy", "precision", "sensitivity", "specificity",
+        "f1", "mcc", "auroc", "auprc", "brier", "nll",
+    ]:
         if not np.isclose(float(actual[key]), float(EXPECTED[key]), rtol=0.0, atol=1e-12):
             raise RuntimeError(f"Metric mismatch for {key}: expected={EXPECTED[key]} got={actual[key]}")
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Reproduce the final 25% physiology + 75% QML integrated evaluation configuration.")
+    ap = argparse.ArgumentParser(
+        description="Reproduce the final 25% physiology + 75% QML integrated evaluation configuration."
+    )
     ap.add_argument("--output", default="outputs/final_integrated_predictions.npz")
     ap.add_argument("--metrics-output", default="outputs/final_integrated_metrics.json")
     args = ap.parse_args()
 
-    check_file(QML_PATH, EXPECTED["qml_sha256"])
-    check_file(PHYS_PATH, EXPECTED["physiology_sha256"])
-    check_file(LABEL_PATH, EXPECTED["labels_sha256"])
+    check_binary_file(QML_PATH, EXPECTED["qml_sha256"])
+    check_binary_file(PHYS_PATH, EXPECTED["physiology_sha256"])
+    label_raw_hash, label_canonical_hash = check_label_file(
+        LABEL_PATH, EXPECTED["labels_canonical_lf_sha256"]
+    )
 
     qml = np.load(QML_PATH, allow_pickle=False)
     phys = np.load(PHYS_PATH, allow_pickle=False)
@@ -196,7 +217,6 @@ def main() -> None:
     w_qml = np.float64(EXPECTED["qml_weight"])
     threshold = np.float64(EXPECTED["hard_threshold"])
 
-    # Fixed project-level fusion: weighted mean in logit space, then sigmoid.
     fused_probability = sigmoid(w_phys * logit(physiology) + w_qml * logit(qml_probability))
     prediction = (fused_probability >= threshold).astype(np.int8)
 
@@ -227,8 +247,8 @@ def main() -> None:
     )
     regenerated_container_hash = sha256(output)
 
-    # Official-x labels are deliberately loaded only after predictions have
-    # been fixed and their cross-environment semantic fingerprints verified.
+    # Labels are loaded only after fused predictions and semantic fingerprints
+    # are fixed. They are used for scoring only.
     label_uids, y_true = load_labels(LABEL_PATH)
     if not np.array_equal(label_uids, qml_uids):
         raise RuntimeError("Evaluation-label UIDs are not exactly aligned with the fixed prediction UIDs")
@@ -240,22 +260,31 @@ def main() -> None:
 
     metrics_output = (ROOT / args.metrics_output).resolve()
     metrics_output.parent.mkdir(parents=True, exist_ok=True)
-    metrics_output.write_text(json.dumps({
-        "system": "Final integrated QML-inclusive project-level evaluation configuration",
-        "physiology_weight": float(w_phys),
-        "qml_weight": float(w_qml),
-        "fusion": "weighted logit mean followed by sigmoid",
-        "hard_threshold": float(threshold),
-        "official_x_labels_used_for_fusion_or_model_selection": False,
-        "official_x_labels_loaded_only_after_predictions_fixed": True,
-        "historical_reference_npz_sha256": EXPECTED["published_reference_npz_sha256"],
-        "regenerated_npz_sha256": regenerated_container_hash,
-        "uid_sha256": uid_hash,
-        "prediction_sha256": pred_hash,
-        "probability_quantization_scale": EXPECTED["probability_quantization_scale"],
-        "probability_quantized_sha256": probability_hash,
-        "metrics": metrics,
-    }, indent=2) + "\n", encoding="utf-8")
+    metrics_output.write_text(
+        json.dumps(
+            {
+                "system": "Final integrated QML-inclusive project-level evaluation configuration",
+                "physiology_weight": float(w_phys),
+                "qml_weight": float(w_qml),
+                "fusion": "weighted logit mean followed by sigmoid",
+                "hard_threshold": float(threshold),
+                "official_x_labels_used_for_fusion_or_model_selection": False,
+                "official_x_labels_loaded_only_after_predictions_fixed": True,
+                "historical_reference_npz_sha256": EXPECTED["published_reference_npz_sha256"],
+                "regenerated_npz_sha256": regenerated_container_hash,
+                "label_raw_sha256": label_raw_hash,
+                "label_canonical_lf_sha256": label_canonical_hash,
+                "uid_sha256": uid_hash,
+                "prediction_sha256": pred_hash,
+                "probability_quantization_scale": EXPECTED["probability_quantization_scale"],
+                "probability_quantized_sha256": probability_hash,
+                "metrics": metrics,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
     print("\nFINAL INTEGRATED SYSTEM REPRODUCTION")
     print(f"Rows: {metrics['n']}")
@@ -265,6 +294,7 @@ def main() -> None:
     print(f"Hard threshold: {threshold}")
     print("Official-x labels used for fusion/model selection: NO")
     print("Official-x labels loaded for scoring only after predictions were fixed: YES")
+    print(f"Label canonical-LF SHA-256: {label_canonical_hash}")
     print(f"UID fingerprint: {uid_hash}")
     print(f"Probability semantic fingerprint (1e-13): {probability_hash}")
     print(f"Hard-prediction fingerprint: {pred_hash}")
