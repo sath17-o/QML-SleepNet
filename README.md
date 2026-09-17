@@ -6,7 +6,7 @@ This repository presents the implemented research pipeline, model artifacts, eva
 
 ## Evaluator quick start
 
-The repository is designed so an evaluator does **not** need access to the author's Google Drive or Git LFS. Prepared Stage02 official-test records are distributed as integrity-checked GitHub Release assets and are downloaded automatically by the evaluator scripts.
+The repository is designed so an evaluator does **not** need access to the author's Google Drive, Git LFS or a separate data download. The prepared Stage02 official-test records `x01`–`x35` are versioned directly under `data/stage02_official_x/` and are checked against `data/STAGE02_OFFICIAL_X_SHA256.csv` before inference.
 
 On Windows with Python 3.11 installed:
 
@@ -14,7 +14,7 @@ On Windows with Python 3.11 installed:
 RUN_DEMO.bat
 ```
 
-This creates the local virtual environment when needed, installs the inference dependencies, downloads and verifies the first evaluator-data release asset, and executes the published Stage06 checkpoint on `x01` with reference-probability comparison.
+This creates the local virtual environment when needed, installs the inference dependencies, verifies the bundled `x01` Stage02 file, and executes the published Stage06 checkpoint with reference-probability comparison.
 
 For the complete 35-record (`x01`–`x35`) Stage06 reproduction:
 
@@ -22,7 +22,7 @@ For the complete 35-record (`x01`–`x35`) Stage06 reproduction:
 RUN_FULL_EVALUATION.bat
 ```
 
-The full run downloads all five release assets, validates their SHA-256 values, validates every extracted Stage02 record against `data/STAGE02_OFFICIAL_X_SHA256.csv`, and only then performs inference. See `docs/EVALUATOR_RUN.md`.
+The full run validates all 35 prepared Stage02 records by byte count and SHA-256 before inference. See `docs/EVALUATOR_RUN.md`.
 
 ## System definitions
 
@@ -76,7 +76,7 @@ This verifies the source-diagram hashes, model/input artifact hashes, methodolog
 
 ## Reproducibility path 2 — Stage06 inference
 
-The repository includes the Stage04 bridge/QML checkpoints, the Stage06 model checkpoint, the QML8 and causal16 arrays consumed by Stage06, and the Stage06 reference probabilities. The prepared Stage02 ECG records can be obtained automatically from the repository's evaluator-data GitHub Release:
+The repository includes the Stage04 bridge/QML checkpoints, the Stage06 model checkpoint, the QML8 and causal16 arrays consumed by Stage06, the Stage06 reference probabilities, and the prepared Stage02 official-test ECG records needed for executable reproduction.
 
 ```bash
 python scripts/setup_evaluator_data.py --mode full
@@ -84,6 +84,8 @@ python scripts/run_pipeline.py --mode inference \
   --stage02-dir data/stage02_official_x \
   --compare-reference
 ```
+
+The first command performs a local integrity check; it does not download data.
 
 A numerical reproduction test was completed on the `x01` Stage02 record. All **522 minute rows** reproduced the stored Stage06 probabilities with maximum absolute difference `9.5367431640625e-07` on the recorded CPU environment, without accessing official-x labels. The machine-readable receipt is `results/validation/FROZEN_STAGE06_X01_REPRODUCTION.json`.
 
@@ -112,21 +114,22 @@ The classical physiology-only comparator attains slightly higher raw official-x 
 
 ## Data provenance
 
-The source data are from the **PhysioNet Apnea-ECG Database v1.0.0** (`10.13026/C23W2R`). PhysioNet distributes the database under the Open Data Commons Attribution License v1.0. Prepared evaluator Stage02 records are accompanied by per-record and per-release-asset SHA-256 manifests. See `data/README.md`.
+The source data are from the **PhysioNet Apnea-ECG Database v1.0.0** (`10.13026/C23W2R`). PhysioNet distributes the database under the Open Data Commons Attribution License v1.0. The prepared evaluator Stage02 records are versioned directly in this repository and fixed by per-record SHA-256 values. See `data/README.md`.
 
 ## Repository structure
 
 ```text
 QML-SleepNet/
 ├── guide_source/                    # archived source diagrams retained for provenance
-├── config/                          # execution, methodology and release contracts
+├── config/                          # execution and methodology contracts
+├── data/stage02_official_x/         # prepared x01-x35 evaluator Stage02 records
 ├── pretrained/                      # versioned model checkpoints + SHA-256 records
 ├── precomputed/stage06_inputs/      # QML8 / causal16 arrays used by Stage06
 ├── notebooks/guide/                 # original methodology-stage notebooks (legacy path retained)
 ├── notebooks/evidence/              # QML evaluation and interpretability evidence
 ├── notebooks/promoted_evidence/     # final-system evaluation notebooks (legacy path retained)
 ├── results/                         # evaluation tables, manifests and validation receipts
-├── scripts/                         # verification, evaluator setup, inference and replay utilities
+├── scripts/                         # verification, evaluator-data integrity, inference and replay utilities
 └── docs/
     ├── METHODOLOGY_ALIGNMENT.md
     ├── EVALUATOR_RUN.md
