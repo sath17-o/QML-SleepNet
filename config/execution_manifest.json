@@ -1,0 +1,159 @@
+{
+  "schema": "QML_SleepNet_GitHub_Execution_Manifest_v3_GuideLocked",
+  "authoritative_guide": "config/guide_source_manifest.json",
+  "alignment_manifest": "config/guide_alignment_manifest.json",
+  "workspace_contract": "Prepared QML_SleepNet workspace. The replay begins from verified Stage02 outputs and the frozen label-free feature cache required by Stage03; it is not represented as a raw-PhysioNet one-click rebuild.",
+  "path_patch_policy": "Temporary execution copies only: replace the fixed Colab project root with --workspace and remove Colab Drive-mount/package-install lines. Scientific notebook code is otherwise unchanged.",
+  "guide_replay_chain": [
+    {
+      "id": "03",
+      "guide_stage_ids": [
+        "01",
+        "02",
+        "03"
+      ],
+      "name": "Leakage-guarded Stage03 feature-bank rebuild from prepared Stage02 + frozen label-free cache",
+      "notebook": "notebooks/guide/01_stage01_03_feature_bank_rebuild.ipynb",
+      "requires": [
+        "data/processed/stage02_preprocessed"
+      ],
+      "produces": [
+        "outputs/GUIDE_EXACT_METRICMAX/03_feature_bank_v1/STAGE03_GUIDE_REBUILD_MANIFEST.json"
+      ],
+      "gpu": false,
+      "raw_from_scratch": false,
+      "source_lock": {
+        "selection_rule": "Frozen notebook searches known 15A feature-bank roots and chooses the largest/newest valid bank.",
+        "frozen_selected_directory": "outputs/guide_pipeline/15A_feature_bank_v1_4_1/d19e39dac5d0_d621cc104b6e_51e3dfa0d246",
+        "required_files": [
+          "feature_values_float32.npz",
+          "feature_target_index.csv",
+          "feature_metadata.csv",
+          "feature_schema.json"
+        ],
+        "candidate_roots": [
+          "outputs/guide_pipeline/15A_feature_bank_v1_4_3",
+          "outputs/guide_pipeline/15A_feature_bank_v1_4_2",
+          "outputs/guide_pipeline/15A_feature_bank_v1_4_1",
+          "outputs/guide_pipeline/15A_feature_bank_v1_4_0",
+          "outputs/guide_pipeline/15A_feature_bank_v1_2"
+        ],
+        "fail_if_notebook_would_select_different_cache": true
+      }
+    },
+    {
+      "id": "04B",
+      "guide_stage_ids": [
+        "03",
+        "04"
+      ],
+      "name": "Fold-safe ANOVA\u2192mRMR\u2192SHAP\u2192PCA128 + 128\u219264\u219232\u21928 bridge",
+      "notebook": "notebooks/guide/02_stage04_bridge_fullgrid.ipynb",
+      "requires": [
+        "outputs/GUIDE_EXACT_METRICMAX/03_feature_bank_v1"
+      ],
+      "produces": [
+        "outputs/GUIDE_EXACT_METRICMAX/04_bridge128to8_v1_3_fullgrid/STAGE04_FULLGRID_MANIFEST.json"
+      ],
+      "gpu": true
+    },
+    {
+      "id": "04Q",
+      "guide_stage_ids": [
+        "04"
+      ],
+      "name": "Audited QML module: Angle/IQP, VQC, fidelity kernel/QSVC, quantum transformer",
+      "notebook": "notebooks/guide/03_stage04_quantum_audited_v3.ipynb",
+      "requires": [
+        "outputs/GUIDE_EXACT_METRICMAX/04_bridge128to8_v1_3_fullgrid"
+      ],
+      "produces": [
+        "outputs/GUIDE_EXACT_METRICMAX/04_quantum_module_v3_audited/STAGE04_AUDITED_V3_MANIFEST.json"
+      ],
+      "gpu": false
+    },
+    {
+      "id": "05",
+      "guide_stage_ids": [
+        "05"
+      ],
+      "name": "Causal discovery / SCM / intervention / causal16",
+      "notebook": "notebooks/guide/04_stage05_causal_core.ipynb",
+      "requires": [
+        "outputs/GUIDE_EXACT_METRICMAX/03_feature_bank_v1",
+        "outputs/GUIDE_EXACT_METRICMAX/04_bridge128to8_v1_3_fullgrid"
+      ],
+      "produces": [
+        "outputs/GUIDE_EXACT_METRICMAX/05_causal_core_v1_2/STAGE05_CAUSAL_CORE_MANIFEST.json"
+      ],
+      "gpu": false
+    },
+    {
+      "id": "05B-06",
+      "guide_stage_ids": [
+        "05",
+        "06",
+        "08"
+      ],
+      "name": "Guide-corrected causal-aware CNN-BiLSTM Task-A binary hybrid",
+      "notebook": "notebooks/guide/05_stage05b_06_final_guide.ipynb",
+      "requires": [
+        "data/processed/stage02_preprocessed",
+        "outputs/GUIDE_EXACT_METRICMAX/04_quantum_module_v3_audited",
+        "outputs/GUIDE_EXACT_METRICMAX/05_causal_core_v1_2"
+      ],
+      "produces": [
+        "outputs/GUIDE_EXACT_METRICMAX/05B_06_FINAL_GUIDE_CORRECTED_CONSOLIDATED_v1/FINAL_GUIDE_CORRECTED_MANIFEST.json"
+      ],
+      "gpu": true
+    }
+  ],
+  "promoted_evidence_chain": [
+    {
+      "id": "09-10",
+      "name": "Project-level promoted-final XAI + bounded robustness refresh",
+      "notebook": "notebooks/promoted_evidence/02_promoted_final_stage09_10_refresh.ipynb",
+      "requires": [
+        "outputs/GUIDE_EXACT_METRICMAX/FINAL_METRIC_CHAMPION_FIXED_FUSION_AUDIT_v1",
+        "outputs/GUIDE_EXACT_METRICMAX/FINAL_FIXED_EQUAL_LOGIT_ENSEMBLE_v1",
+        "outputs/GUIDE_EXACT_METRICMAX/DEV35_STAGE15A_PHYSIO_BOOSTING_CHALLENGER_v1_2_COVERAGESAFE"
+      ],
+      "produces": [
+        "outputs/GUIDE_EXACT_METRICMAX/XAI_CAUSAL_INTERPRETABILITY_90P8627_PROMOTED_FINAL_v1/XAI_PROMOTED_FINAL_MANIFEST.json",
+        "outputs/GUIDE_EXACT_METRICMAX/STAGE10_MODEL_ROBUSTNESS_90P8627_PROMOTED_FINAL_v1/STAGE10_PROMOTED_FINAL_MANIFEST.json"
+      ],
+      "gpu": false,
+      "guide_native": false
+    },
+    {
+      "id": "11",
+      "name": "Project-level final evaluation + clustered statistics",
+      "notebook": "notebooks/promoted_evidence/03_stage11_final_evaluation_statistics.ipynb",
+      "requires": [
+        "outputs/GUIDE_EXACT_METRICMAX/XAI_CAUSAL_INTERPRETABILITY_90P8627_PROMOTED_FINAL_v1",
+        "outputs/GUIDE_EXACT_METRICMAX/STAGE10_MODEL_ROBUSTNESS_90P8627_PROMOTED_FINAL_v1",
+        "outputs/GUIDE_EXACT_METRICMAX/FINAL_METRIC_CHAMPION_FIXED_FUSION_AUDIT_v1"
+      ],
+      "produces": [
+        "outputs/GUIDE_EXACT_METRICMAX/STAGE11_FINAL_EVALUATION_90P8627_v1/STAGE11_FINAL_MANIFEST.json"
+      ],
+      "gpu": false,
+      "guide_native": false
+    }
+  ],
+  "inference": {
+    "script": "scripts/run_frozen_stage06.py",
+    "checkpoint": "pretrained/stage06/qml_sleepnet_final_guide_corrected.pt",
+    "bundled_frozen_inputs": [
+      "precomputed/stage06_inputs/quantum_features_for_final_stage06.npz",
+      "precomputed/stage06_inputs/causal16_for_final_stage06.npz"
+    ],
+    "external_prerequisite": "Stage02 *_preprocessed.npz ECG records only",
+    "reference_predictions": "results/guide_stage06/final_predictions.npz"
+  },
+  "identity_boundary": {
+    "guide_native_endpoint": "pretrained/stage06/qml_sleepnet_final_guide_corrected.pt",
+    "canonical_reported_qml": "fixed equal-logit project evaluation wrapper, documented in evidence notebooks; not identical to the single Stage06 checkpoint",
+    "promoted_90p8627": "25% Stage15A physiology + 75% canonical-QML fixed-logit fusion; project extension, not guide-native Stage06"
+  }
+}

@@ -1,0 +1,17 @@
+numpy>=1.26,<3
+pandas>=2.2,<3
+scipy>=1.14,<1.17
+scikit-learn==1.6.1
+matplotlib>=3.8,<4
+joblib>=1.4
+torch>=2.3
+catboost==1.2.8
+pennylane>=0.40
+causal-learn==0.1.4.8
+wfdb>=4.1
+PyWavelets>=1.6
+xgboost>=2.0
+jupyter>=1.0
+nbconvert>=7.16
+nbclient>=0.10
+PyYAML>=6.0

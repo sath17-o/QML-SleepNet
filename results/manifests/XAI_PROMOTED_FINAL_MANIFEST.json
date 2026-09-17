@@ -1,0 +1,45 @@
+{
+  "classical_parent_explanation": {
+    "artifact": "STAGE15A_CLASSICAL_PARENT_FEATURE_IMPORTANCE.csv",
+    "limitation": "CatBoost model importance is not causal evidence and is not SHAP.",
+    "method": "mean frozen CatBoost feature_importances_ across the five final all-learning seed models",
+    "model_hashes": "STAGE15A_CLASSICAL_PARENT_MODEL_HASHES.csv"
+  },
+  "created_at_utc": "2026-09-14T10:11:28.398803+00:00",
+  "exact_top_level_explanation": {
+    "artifact": "PROMOTED_FINAL_PARENT_LOGIT_CONTRIBUTION.csv",
+    "method": "weighted logit decomposition",
+    "reconstruction_max_abs_error": 0.0,
+    "weights": {
+      "physiology": 0.25,
+      "qml": 0.75
+    }
+  },
+  "fusion_weight_tuning_performed": false,
+  "important_limitations": [
+    "Top-level contribution is exact logit decomposition, not a causal attribution.",
+    "Stage15A feature importance is model importance, not clinical causality.",
+    "Inherited QML causal/SHAP/latent/ECG explanations explain the unchanged QML parent, not the Stage15A parent.",
+    "ACE remains model-based causal evidence under Stage05 assumptions, not clinical proof.",
+    "No quantum-advantage claim."
+  ],
+  "locked_official_x_accuracy": 0.9086270871985158,
+  "locked_official_x_accuracy_percent": 90.86270871985158,
+  "model_selection_performed": false,
+  "next_roadmap_stage": "Stage 10 \u2014 Model Robustness (promoted-final refresh)",
+  "predictions_modified": false,
+  "promoted_final_model": "25% Stage15A physiology + 75% guide-primary QML, fixed logit fusion",
+  "promoted_final_prediction_sha256": "063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f",
+  "qml_parent_xai_reuse": {
+    "artifact_index": "INHERITED_QML_COMPONENT_XAI_ARTIFACT_INDEX.csv",
+    "reason_valid": "The QML parent used by the promoted fusion is byte-for-byte the same frozen 90.1148% QML system.",
+    "source_manifest_sha256": "54399cd1ebea133abebe72887708ff5f5173b5574df1c2bb862fdde472dd576c",
+    "source_qml_prediction_sha256": "f121a79191be00a28f33e06e7dec20cc689268b10a988c52e21284c90d1e2eef",
+    "source_xai_manifest": "/content/drive/MyDrive/QML_SleepNet/outputs/GUIDE_EXACT_METRICMAX/XAI_CAUSAL_INTERPRETABILITY_90P1148_FINAL_v1_2/XAI_FINAL_MANIFEST.json"
+  },
+  "representative_cases": "PROMOTED_FINAL_REPRESENTATIVE_CASES.csv",
+  "roadmap_stage": "Stage 09 \u2014 Interpretability and Causal Analysis (promoted-final refresh)",
+  "schema": "QML_SleepNet_XAI_CAUSAL_INTERPRETABILITY_90P8627_PROMOTED_FINAL_v1",
+  "threshold_tuning_performed": false,
+  "training_performed": false
+}

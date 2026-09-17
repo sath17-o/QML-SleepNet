@@ -1,0 +1,26 @@
+{
+  "pipeline": "QML-SleepNet Stage05B+Stage06 FINAL GUIDE-CORRECTED CONSOLIDATED v1",
+  "task": "Task A binary Apnea vs Normal",
+  "qml": "frozen Stage04 Angle-Rx VQC8 winner",
+  "causal": "frozen Stage05 causal16 + Q25/Q75/ACE interventions",
+  "temporal_input": "Stage02 filtered ECG, 60-second minute, per-record z-score, clip to \u00b14 SD",
+  "temporal": "Conv1D64(k3,k5,k7) -> BN/ReLU/MaxPool -> BiLSTM128x2 -> self-attention -> global avg+max",
+  "fusion": "causal16 -> gate16 -> gated causal16; QML8 preserved unchanged; QML8 + temporal512 + gated causal16 -> Linear 536->256 -> FC128 -> FC64 -> 2 logits",
+  "classification_loss": "label-smoothed focal loss, gamma=2, deterministic fold-local inverse-frequency alpha",
+  "composite_loss": "0.60 classification + 0.25 causal intervention + 0.15 frozen/upstream QML term (zero downstream gradient)",
+  "training": "AdamW 1e-4, wd 1e-4, betas .9/.999, AMSGrad, eps 1e-8, warmup10 + cosine to 1e-6, dropout .4, epochs50, batch96",
+  "validation": "guide-required 5-fold CV on learning records; duplicate-safe; official x labels sealed",
+  "fold3_reuse": "exact final pilot reused only if artifact validation passes",
+  "not_used": [
+    "threshold tuning",
+    "probability smoothing",
+    "ensemble",
+    "IQP tournament",
+    "QT64 substitution",
+    "dropout sweep",
+    "gamma sweep",
+    "scheduler experiment",
+    "architecture search"
+  ],
+  "official_x_labels_used": false
+}

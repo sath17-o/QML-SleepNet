@@ -1,0 +1,119 @@
+{
+  "schema": "QML_SleepNet_Guide_Alignment_v1",
+  "source_manifest": "config/guide_source_manifest.json",
+  "status_vocabulary": [
+    "IMPLEMENTED",
+    "IMPLEMENTED_WITH_LEAKAGE_SAFE_ADAPTATION",
+    "IMPLEMENTED_WITH_DOCUMENTED_CHOICE",
+    "EVIDENCE_ONLY",
+    "NOT_SUPPORTED_BY_SOURCE_LABELS_NOT_CLAIMED",
+    "NOT_ESTABLISHED_IN_PACKAGED_CORE"
+  ],
+  "stages": [
+    {
+      "guide_stage": "01",
+      "guide_requirement": "Apnea-ECG acquisition: 35 learning + 35 official x records; ECG at 100 Hz; minute annotations; respiratory/SpO2 channels where available.",
+      "status": "NOT_ESTABLISHED_IN_PACKAGED_CORE",
+      "implementation": "The prepared workspace is the source for Stage02 records. Raw PhysioNet files are not redistributed in this repository.",
+      "evidence": [
+        "guide_source/IMG_0662.jpeg"
+      ]
+    },
+    {
+      "guide_stage": "02",
+      "guide_requirement": "ECG filtering/R-peak processing, 60-s non-overlap windows, HRV construction, available respiratory/SpO2 synchronization, normalization.",
+      "status": "NOT_ESTABLISHED_IN_PACKAGED_CORE",
+      "implementation": "Stage02 outputs are a declared prerequisite: data/processed/stage02_preprocessed/{record}_preprocessed.npz. The final Stage06 consumes ecg_filtered at 100 Hz with 60-s geometry.",
+      "evidence": [
+        "guide_source/IMG_0662.jpeg",
+        "results/manifests/guide/FINAL_GUIDE_CORRECTED_MANIFEST.json"
+      ]
+    },
+    {
+      "guide_stage": "03",
+      "guide_requirement": "Multimodal physiological feature engineering and ANOVA→mRMR→SHAP→PCA to a ~128-D representation.",
+      "status": "IMPLEMENTED_WITH_LEAKAGE_SAFE_ADAPTATION",
+      "implementation": "The frozen Stage03 rebuild produces 419 features and explicitly does NOT use AHI as an input because AHI would be derived from A/N reference annotations in this dataset. Stage04 bridge applies fold-safe ANOVA→mRMR→SHAP→PCA128.",
+      "evidence": [
+        "results/manifests/guide/STAGE03_GUIDE_REBUILD_MANIFEST.json",
+        "results/manifests/guide/STAGE04_FULLGRID_MANIFEST.json"
+      ]
+    },
+    {
+      "guide_stage": "04",
+      "guide_requirement": "Classical pre-encoder 128→64→32→8; 6–8 qubits; angle/amplitude/IQP alternatives; VQC, fidelity-kernel/QSVC, quantum-transformer; Pauli-Z measurement.",
+      "status": "IMPLEMENTED_WITH_DOCUMENTED_CHOICE",
+      "implementation": "Audited core uses 128→64→32→8, 8 qubits, Angle-Rx and dense all-pairs IQP, VQC depth 4 / 96 quantum parameters, fidelity-kernel SVM/QSVM, QT latent 64, Pauli-Z. Amplitude encoding is not established in the audited core and is not claimed.",
+      "evidence": [
+        "results/manifests/guide/STAGE04_AUDITED_V3_MANIFEST.json"
+      ]
+    },
+    {
+      "guide_stage": "05",
+      "guide_requirement": "PC/FCI/NOTEARS/LiNGAM, SCM/interventions/ACE, causal ranking, causal-aware fusion.",
+      "status": "IMPLEMENTED_WITH_DOCUMENTED_CHOICE",
+      "implementation": "Stage05 implements PC/FCI/NOTEARS/LiNGAM and a structural logistic outcome SCM; causal16 is selected by training-fold absolute ACE. The Stage06 causal-aware gate completes the fusion.",
+      "evidence": [
+        "results/manifests/guide/STAGE05_CAUSAL_CORE_MANIFEST.json",
+        "results/manifests/guide/FINAL_GUIDE_CORRECTED_MANIFEST.json"
+      ]
+    },
+    {
+      "guide_stage": "06",
+      "guide_requirement": "QML + CNN-BiLSTM + causal fusion; Task A Apnea/Normal; Task B OSA/CSA/Mixed; Task C A/B/C grouping.",
+      "status": "IMPLEMENTED_WITH_LEAKAGE_SAFE_ADAPTATION",
+      "implementation": "Task A is implemented. The final guide-native endpoint uses QML8 + temporal512 + gated causal16 → 536→256→128→64→2. OSA/CSA/Mixed is NOT trained because Apnea-ECG minute labels do not provide that target. A/B/C analyses are treated only as record burden categories, not apnea subtypes.",
+      "evidence": [
+        "results/manifests/guide/FINAL_GUIDE_CORRECTED_MANIFEST.json",
+        "results/manifests/guide/STAGE03_GUIDE_REBUILD_MANIFEST.json"
+      ]
+    },
+    {
+      "guide_stage": "07",
+      "guide_requirement": "SHAP, quantum saliency/QFI/parameter-shift, causal DAG/intervention/counterfactual/mediation interpretations.",
+      "status": "EVIDENCE_ONLY",
+      "implementation": "Interpretability is represented in the evidence notebooks/manifests. Causal evidence is not promoted to clinical causality.",
+      "evidence": [
+        "notebooks/evidence/09_xai_canonical_qml.ipynb",
+        "results/manifests/XAI_PROMOTED_FINAL_MANIFEST.json"
+      ]
+    },
+    {
+      "guide_stage": "08",
+      "guide_requirement": "AdamW, regularization/scheduling, 35 learn + 35 test, 5-fold CV and LOSO, hybrid CPU/GPU tooling.",
+      "status": "IMPLEMENTED_WITH_DOCUMENTED_CHOICE",
+      "implementation": "Stage06 manifest locks AdamW, warmup+cosine, dropout, 50 epochs, 5-fold duplicate-safe CV and sealed x labels. LOSO is not established by the packaged core and is not claimed as completed here.",
+      "evidence": [
+        "results/manifests/guide/FINAL_GUIDE_CORRECTED_MANIFEST.json",
+        "results/manifests/guide/STAGE04_AUDITED_V3_MANIFEST.json"
+      ]
+    },
+    {
+      "guide_stage": "09",
+      "guide_requirement": "Performance, calibration/clinical, quantum, statistical and ablation evaluation.",
+      "status": "EVIDENCE_ONLY",
+      "implementation": "Packaged evidence covers final metrics/statistics and bounded robustness. No quantum-advantage claim is made; not every metric named on the guide image is asserted as completed by the core.",
+      "evidence": [
+        "results/manifests/STAGE11_FINAL_MANIFEST.json",
+        "results/manifests/STAGE10_PROMOTED_FINAL_MANIFEST.json"
+      ]
+    },
+    {
+      "guide_stage": "10",
+      "guide_requirement": "Publication-oriented outputs.",
+      "status": "EVIDENCE_ONLY",
+      "implementation": "Repository contains the academic evidence package and reviewer-facing artifacts; journal acceptance/publication is not claimed.",
+      "evidence": [
+        "notebooks/promoted_evidence/04_academic_submission_inline_evidence.ipynb"
+      ]
+    }
+  ],
+  "explicit_nonclaims": [
+    "No OSA/CSA/Mixed classifier is claimed.",
+    "No quantum advantage is claimed.",
+    "AHI is not used as an input feature in the frozen Stage03 rebuild.",
+    "A/B/C record-category analysis is not an OSA/CSA/Mixed subtype classifier.",
+    "The repository does not claim a verified raw-data-to-Stage02 one-click build.",
+    "The 90.8627% promoted system is a project-level fixed-fusion extension, not the guide-native Stage06 checkpoint."
+  ]
+}

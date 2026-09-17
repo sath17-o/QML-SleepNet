@@ -1,0 +1,58 @@
+{
+  "project": "QML-SleepNet",
+  "authoritative_guide": "config/guide_source_manifest.json",
+  "alignment": "config/guide_alignment_manifest.json",
+  "submission_mode": "guide_locked_frozen_reproducibility",
+  "system_identities": {
+    "guide_native_stage06": {
+      "artifact": "pretrained/stage06/qml_sleepnet_final_guide_corrected.pt",
+      "task": "binary Apnea vs Normal",
+      "role": "single frozen guide-native hybrid checkpoint"
+    },
+    "canonical_reported_qml": {
+      "accuracy": 0.9011479591836735,
+      "role": "fixed equal-logit project evaluation wrapper; separate from single Stage06 checkpoint"
+    },
+    "promoted_final": {
+      "name": "FIXED_LOGIT_PHYS_25_QML_75",
+      "accuracy": 0.9086270871985158,
+      "prediction_sha256": "063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f",
+      "official_x_records": 35,
+      "official_x_rows": 17248,
+      "role": "project-level 25% physiology + 75% canonical-QML fixed fusion"
+    },
+    "classical_only_benchmark": {
+      "accuracy": 0.9101924860853432,
+      "role": "comparison benchmark"
+    }
+  },
+  "headline_promoted_metrics": {
+    "accuracy": 0.9086270871985158,
+    "auprc": 0.9497755803318464,
+    "auroc": 0.9675236374617686,
+    "balanced_accuracy": 0.9076848836674374,
+    "brier": 0.0796448443135515,
+    "f1": 0.882475764354959,
+    "fn": 630,
+    "fp": 946,
+    "mcc": 0.8084026100817799,
+    "n": 17248,
+    "nll": 0.4334665417947636,
+    "precision": 0.8621594055077955,
+    "sensitivity": 0.9037727203299221,
+    "specificity": 0.9115970470049528,
+    "tn": 9755,
+    "tp": 5917
+  },
+  "scientific_caveats": [
+    "post-hoc development extension conceived after historical component x scores were known; fusion method itself selected only from strict development OOF",
+    "Final 90.8627% fused x result is not presented as pristine never-seen external validation.",
+    "Best classical-only benchmark (91.0192%) is slightly higher in raw x accuracy than the final QML-inclusive system.",
+    "No quantum-advantage claim.",
+    "Historical Challenge comparison is not protocol-identical because current project scores 17,248 vs official Challenge 17,268 minutes.",
+    "Stage10 promoted robustness perturbation is Stage06/QML-channel stress with physiology parent held clean, not full dual-parent end-to-end raw-ECG perturbation.",
+    "Guide Task B OSA/CSA/Mixed is not supported by the available Apnea-ECG minute A/N labels and is not claimed.",
+    "AHI is not used as a Stage03 input feature because doing so from A/N annotations would leak the target.",
+    "The packaged guide replay starts from prepared Stage02 artifacts plus a frozen label-free feature cache; raw-to-Stage02 one-click reproduction is not claimed."
+  ]
+}

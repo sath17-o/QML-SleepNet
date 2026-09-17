@@ -1,0 +1,43 @@
+{
+  "pipeline": "QML-SleepNet Stage05 causal core AUDITED v1.2",
+  "graph_discovery": [
+    "PC",
+    "FCI",
+    "NOTEARS",
+    "LiNGAM"
+  ],
+  "graph_discovery_scope": "continuous physiological feature system",
+  "binary_apnea_node": "structural logistic outcome SCM; feature\u2192apnea edges are explicitly labelled SCM parent edges",
+  "scm": {
+    "type": "multivariable logistic structural outcome model",
+    "interventions": [
+      "training-fold Q25",
+      "training-fold Q75"
+    ],
+    "ace": "mean P(Y=1|do(Q75)) - mean P(Y=1|do(Q25))",
+    "confounding_adjustment": "other broadly available source-aligned physiological candidates in the SCM",
+    "interpretation": "observational causal interpretation conditional on SCM/identification assumptions"
+  },
+  "causal16": {
+    "selection": "top 16 by absolute training-fold ACE",
+    "validation_labels_used_for_selection": false,
+    "official_test_labels_used": false
+  },
+  "hrv_to_apnea_path": true,
+  "ecg_spo2_mediation": true,
+  "sparse_multimodal_features_not_globally_imputed_into_causal16": true,
+  "quantum_causal_fusion": {
+    "status": "DEFERRED",
+    "reason": "depends on frozen Stage04 QML outputs",
+    "remaining_source_items": [
+      "QML output + causal features",
+      "causal-aware attention gate",
+      "intervention-level fusion",
+      "counterfactual augmentation",
+      "causal regularisation loss"
+    ]
+  },
+  "fold_artifact_dir": "/content/drive/MyDrive/QML_SleepNet/outputs/GUIDE_EXACT_METRICMAX/05_causal_core_v1_2/folds",
+  "final_causal16_path": "/content/drive/MyDrive/QML_SleepNet/outputs/GUIDE_EXACT_METRICMAX/05_causal_core_v1_2/final_fit/causal16_for_final_stage06.npz",
+  "next": "after Stage04: complete Quantum-Causal Fusion; combine causal16 with CNN-BiLSTM and QML8 in Stage06"
+}

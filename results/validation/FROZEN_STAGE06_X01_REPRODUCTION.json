@@ -1,0 +1,20 @@
+{
+  "schema": "QML_SleepNet_Frozen_Stage06_Reproduction_Receipt_v1",
+  "test_scope": "full x01 official-x record only (522 minute rows); this is an execution reproducibility test, not a performance evaluation",
+  "official_x_labels_read": false,
+  "stage02_input_file": "x01_preprocessed.npz (external test input; not included in repository)",
+  "stage02_input_sha256": "64daec149d2cea3ed398afd262b8b8c1dc87ce72fe0ece3ac63f816b37af618b",
+  "checkpoint": "pretrained/stage06/qml_sleepnet_final_guide_corrected.pt",
+  "checkpoint_sha256": "a04ac77bd285bb04077a7ffd294cb5b0ad805a9ec2560b0f050c03acce2e262b",
+  "rows": 522,
+  "max_abs_probability_difference_vs_frozen_reference": 9.5367431640625e-07,
+  "mean_abs_probability_difference_vs_frozen_reference": 8.620978315214544e-08,
+  "tolerance_used": 0.0001,
+  "status": "PASS",
+  "runtime_environment": {
+    "python": "3.13.5",
+    "torch": "2.10.0+cpu",
+    "device": "cpu"
+  },
+  "command": "python scripts/run_frozen_stage06.py --stage02-dir <dir> --split official-x --records x01 --batch-size 64 --device cpu --compare-reference"
+}

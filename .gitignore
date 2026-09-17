@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+
+# Raw / large local workspace artifacts
+data/raw/*
+!data/raw/.gitkeep
+external_workspace/
+executed_notebooks/
+*.pt
+*.pth
+*.ckpt
+*.h5
+*.hdf5
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Frozen submission checkpoints are intentionally versioned (all are < GitHub's per-file limit)
+!pretrained/**/*.pt

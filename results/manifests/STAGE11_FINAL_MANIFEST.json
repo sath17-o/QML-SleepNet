@@ -1,0 +1,82 @@
+{
+  "artifact_hashes": "STAGE11_ARTIFACT_HASHES.csv",
+  "comparison_roles": {
+    "best_classical_only_benchmark": {
+      "accuracy": 0.9101924860853432,
+      "name": "Stage15A physiology CatBoost + temperature + HMM"
+    },
+    "canonical_guide_qml": {
+      "accuracy": 0.9011479591836735,
+      "name": "Bridge + QT Angle-Rx + corrected Stage06 fixed ensemble"
+    }
+  },
+  "created_at_utc": "2026-09-14T10:34:36.386984+00:00",
+  "evidence_domains": {
+    "external_historical_challenge": "context only; 17,268-minute denominator differs",
+    "official_x_same_row_system_comparison": "17,248 frozen project rows",
+    "vqc_vs_qsvc": "matched strict development folds only; exploratory n=4 fold statistics"
+  },
+  "final_designated_system": {
+    "description": "25% Stage15A physiology + 75% guide-primary QML, fixed logit fusion",
+    "metrics": {
+      "accuracy": 0.9086270871985158,
+      "auprc": 0.9497755803318464,
+      "auroc": 0.9675236374617686,
+      "balanced_accuracy": 0.9076848836674374,
+      "brier": 0.0796448443135515,
+      "f1": 0.882475764354959,
+      "fn": 630,
+      "fp": 946,
+      "mcc": 0.8084026100817799,
+      "n": 17248,
+      "nll": 0.4334665417947636,
+      "precision": 0.8621594055077955,
+      "sensitivity": 0.9037727203299221,
+      "specificity": 0.9115970470049528,
+      "tn": 9755,
+      "tp": 5917
+    },
+    "name": "FIXED_LOGIT_PHYS_25_QML_75",
+    "official_x_records": 35,
+    "official_x_rows": 17248,
+    "prediction_sha256": "063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f",
+    "threshold": 0.5,
+    "weights": {
+      "physiology": 0.25,
+      "qml": 0.75
+    }
+  },
+  "guide_contract": "STAGE11_GUIDE_CONTRACT.json",
+  "model_development": {
+    "best_model_roadmap_interpretation": "final designation/reporting only; no x-driven re-selection",
+    "calibration_refit_performed": false,
+    "fine_tuning_performed": false,
+    "fusion_weight_search_performed": false,
+    "hmm_refit_performed": false,
+    "model_selection_performed_in_stage11": false,
+    "threshold_search_performed": false,
+    "training_performed": false
+  },
+  "next": "Stage 12 \u2014 Documentation and Reproducibility",
+  "roadmap_source": "QML-SleepNet Research Roadmap.png",
+  "roadmap_stage": "Stage 11 \u2014 Final Evaluation Protocol",
+  "schema": "QML_SleepNet_STAGE11_FINAL_EVALUATION_90P8627_v1",
+  "scientific_caveats": [
+    "post-hoc development extension conceived after historical component x scores were known; fusion method itself selected only from strict development OOF",
+    "Final 90.8627% fused x result is not presented as pristine never-seen external validation.",
+    "Best classical-only benchmark (91.0192%) is slightly higher in raw x accuracy than the final QML-inclusive system.",
+    "No quantum-advantage claim.",
+    "Historical Challenge comparison is not protocol-identical because current project scores 17,248 vs official Challenge 17,268 minutes.",
+    "Stage10 promoted robustness perturbation is Stage06/QML-channel stress with physiology parent held clean, not full dual-parent end-to-end raw-ECG perturbation."
+  ],
+  "statistics": {
+    "holm_multiple_test_correction": true,
+    "minute_rows_treated_as_iid": false,
+    "paired_cohen_dz": true,
+    "paired_t_tests": true,
+    "primary_unit": "35 official x record clusters",
+    "record_cluster_bootstrap_replicates": 5000,
+    "record_cluster_bootstrap_seed": 20260914
+  },
+  "status": "STAGE11_COMPLETE"
+}

@@ -1,0 +1,56 @@
+{
+  "created_at_utc": "2026-09-14T10:11:45.337383+00:00",
+  "ensemble_weight_tuning_performed": false,
+  "headline_model_modified": false,
+  "locked_official_x_accuracy": 0.9086270871985158,
+  "model_selection_performed": false,
+  "next": "Stage 11 \u2014 Final Evaluation Protocol / statistical comparison",
+  "official_x_labels_role": "evaluation only; historical x exposure caveat retained",
+  "outputs": [
+    "STAGE10_PROMOTED_CV_UNSEEN_SUMMARY.json",
+    "STAGE10_PROMOTED_PARENT_ABLATION.csv",
+    "STAGE10_PROMOTED_GENERALIZATION_DOMAIN_SHIFT.csv",
+    "STAGE10_PROMOTED_ARTIFACT_SEGMENT_REPORT.json",
+    "STAGE10_PROMOTED_PERTURBATION_ROBUSTNESS.csv",
+    "INHERITED_QML_COMPONENT_FEATURE_ZEROOUT_SENSITIVITY.csv",
+    "STAGE10_PROMOTED_UNSUPPORTED_OR_SCOPE_LIMITED_ITEMS.json"
+  ],
+  "primary_frozen_model": "25% Stage15A physiology + 75% guide-primary QML; fixed logit fusion",
+  "primary_frozen_prediction_sha256": "063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f",
+  "schema": "QML_SleepNet_STAGE10_MODEL_ROBUSTNESS_90P8627_PROMOTED_FINAL_v1",
+  "stage": "Stage 10 \u2014 Model Robustness (promoted-final refresh)",
+  "stage10_1_cross_validation_unseen": {
+    "artifact": "STAGE10_PROMOTED_CV_UNSEEN_SUMMARY.json",
+    "status": "COMPLETE_BY_REUSE_AND_PROMOTED_REBIND"
+  },
+  "stage10_2_artifact_segments": {
+    "artifact": "STAGE10_PROMOTED_ARTIFACT_SEGMENT_REPORT.json",
+    "status": "COMPLETE_WITH_EXISTING_DETERMINISTIC_HEURISTIC_PROXY"
+  },
+  "stage10_2_noise_and_temporal_coverage": {
+    "artifact": "STAGE10_PROMOTED_PERTURBATION_ROBUSTNESS.csv",
+    "conditions": [
+      "SNR20_DB",
+      "SNR10_DB",
+      "CENTRAL_45S",
+      "CENTRAL_30S"
+    ],
+    "scope_limitation": "Stage06 temporal branch perturbed; Bridge/QT and promoted Stage15A physiology parent held clean. No full dual-parent raw-ECG perturbation claim.",
+    "status": "COMPLETE_FOR_PREVIOUSLY_DEFINED_STAGE06_QML_PERTURBATION_PATHWAY"
+  },
+  "stage10_3_generalization": {
+    "artifact": "STAGE10_PROMOTED_GENERALIZATION_DOMAIN_SHIFT.csv",
+    "different_sleep_stages": "NOT EVALUABLE: no sleep-stage target in frozen project contract",
+    "domain_shift": "COMPLETE on promoted clean predictions: Task-C class, apnea-burden quartile, record-length quartile",
+    "variable_temporal_coverage": "COMPLETE for inherited Stage06-channel 45s/30s masking propagated through promoted fusion"
+  },
+  "stage10_4_ablation": {
+    "artifact": "STAGE10_PROMOTED_PARENT_ABLATION.csv",
+    "component_sensitivity_artifact": "INHERITED_QML_COMPONENT_FEATURE_ZEROOUT_SENSITIVITY.csv",
+    "promoted_parent_ablation": "COMPLETE",
+    "qml8_causal16_component_sensitivity": "INHERITED from exact unchanged QML parent; component-level only, no claim that it is top-level promoted-final feature attribution"
+  },
+  "threshold_tuning_performed": false,
+  "training_performed": false,
+  "unsupported_or_scope_limited": "STAGE10_PROMOTED_UNSUPPORTED_OR_SCOPE_LIMITED_ITEMS.json"
+}

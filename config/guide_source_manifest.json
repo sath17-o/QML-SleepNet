@@ -1,0 +1,56 @@
+{
+  "schema": "QML_SleepNet_Guide_Source_Lock_v1",
+  "authority": "The five supplied guide screenshots are the authoritative scientific specification for guide-alignment claims in this repository.",
+  "images": [
+    {
+      "file": "guide_source/IMG_0662.jpeg",
+      "sha256": "aaef80f2b7ebc02b31595b5a809da93c2dc2e2f7717a4f5ca1878c4d8f77ff8b",
+      "bytes": 195782,
+      "guide_sections": [
+        "Stage 01 — Data Acquisition",
+        "Stage 02 — Signal Preprocessing"
+      ]
+    },
+    {
+      "file": "guide_source/IMG_0663.jpeg",
+      "sha256": "01a4c7fdf59be606b99c84d48ba1fc3b76a8003ddae15faf8ceaa4573741e968",
+      "bytes": 207477,
+      "guide_sections": [
+        "Stage 03 — Multimodal Feature Engineering",
+        "Stage 04 — QML (feature selection/pre-encoder/encoding)"
+      ]
+    },
+    {
+      "file": "guide_source/IMG_0664.jpeg",
+      "sha256": "f545e7f1ca099f40383ebf3d86bc11574c700322581c6518a1ab49399f471caa",
+      "bytes": 216245,
+      "guide_sections": [
+        "Stage 04 — QML (VQC/kernel/quantum transformer)",
+        "Stage 05 — Causal Inference"
+      ]
+    },
+    {
+      "file": "guide_source/IMG_0665.jpeg",
+      "sha256": "55c3f31de01254b0df15d7c57a4b184e3e842486e4e0f92aecb341a6dc3aa5e1",
+      "bytes": 203128,
+      "guide_sections": [
+        "Stage 05 — Quantum–Causal Fusion",
+        "Stage 06 — Classification",
+        "Stage 07 — XAI"
+      ]
+    },
+    {
+      "file": "guide_source/IMG_0666.jpeg",
+      "sha256": "8d93eecf5c8a11828e89e19e8f22e05680ace49c34b115d43ec55fb447322e38",
+      "bytes": 187079,
+      "guide_sections": [
+        "Stage 08 — Training Protocol",
+        "Stage 09 — Evaluation",
+        "Stage 10 — Publication Outputs"
+      ]
+    }
+  ],
+  "interpretation_rule": "Where the guide is under-specified, the repository documents the implementation choice. Where source labels/artifacts cannot support a guide item, the repository marks it unsupported/not claimed rather than fabricating compliance.",
+  "raw_from_scratch_claim": false,
+  "reason_raw_from_scratch_not_claimed": "The frozen Stage03 rebuild consumes pre-existing Stage02 preprocessed records and a label-free 379-feature cache; no independently verified raw-to-Stage02 producer is packaged as part of this frozen guide chain."
+}

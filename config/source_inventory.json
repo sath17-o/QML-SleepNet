@@ -1,0 +1,17 @@
+{
+  "source_of_truth": "Frozen QML_SleepNet project workspace and final Stage09/10/11 artifacts",
+  "authoritative_notebooks": [
+    "01_stage01_03_feature_bank_rebuild.ipynb",
+    "02_stage04_bridge_fullgrid.ipynb",
+    "03_stage04_quantum_audited_v3.ipynb",
+    "04_stage05_causal_core.ipynb",
+    "05_stage05b_06_final_guide.ipynb",
+    "01_official_x_frozen_guide_evaluation.ipynb",
+    "02_promoted_final_stage09_10_refresh.ipynb",
+    "03_stage11_final_evaluation_statistics.ipynb",
+    "04_academic_submission_inline_evidence.ipynb"
+  ],
+  "excluded_from_main_path": "discarded metric-search / rescue experiments",
+  "dataset_redistributed": false,
+  "large_checkpoints_redistributed": false
+}

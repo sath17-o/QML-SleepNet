@@ -1,0 +1,72 @@
+{
+  "schema": "QML_SleepNet_Frozen_Artifact_Manifest_v1",
+  "artifacts": [
+    {
+      "file": "pretrained/bridge/bridge128to8_model.pt",
+      "role": "Stage04 bridge checkpoint",
+      "workspace_origin": "outputs/GUIDE_EXACT_METRICMAX/04_bridge128to8_v1_3_fullgrid/final_fit/bridge128to8_model.pt",
+      "bytes": 50741,
+      "sha256": "361183f36647c0e44e1c59860fa1c79b04e90df87b8961dc67e3301a739a33a3"
+    },
+    {
+      "file": "pretrained/qml/final_vqc_angle_rx.pt",
+      "role": "Stage04 VQC Angle-Rx checkpoint",
+      "workspace_origin": "outputs/GUIDE_EXACT_METRICMAX/04_quantum_module_v3_audited/final_fit/final_vqc_angle_rx.pt",
+      "bytes": 51389,
+      "sha256": "daf92d8dc696721da2f45f7fd47077d5d499916f471c1a16b9e7e88cd182ddd6"
+    },
+    {
+      "file": "pretrained/qml/final_vqc_iqp_dense.pt",
+      "role": "Stage04 VQC dense-IQP checkpoint",
+      "workspace_origin": "outputs/GUIDE_EXACT_METRICMAX/04_quantum_module_v3_audited/final_fit/final_vqc_iqp_dense.pt",
+      "bytes": 51414,
+      "sha256": "67f2c0ec385c0add85e90eaaba0ed4f2bc5384bf97aef183feee59055fd9767b"
+    },
+    {
+      "file": "pretrained/qml/final_qt_angle_rx.pt",
+      "role": "Stage04 quantum-transformer Angle-Rx checkpoint",
+      "workspace_origin": "outputs/GUIDE_EXACT_METRICMAX/04_quantum_module_v3_audited/final_fit/final_qt_angle_rx.pt",
+      "bytes": 56064,
+      "sha256": "e3bb7ac6dc2bbcfbb78b9c7ad9d0edca9bdb2902efa624bb762e293923905ce9"
+    },
+    {
+      "file": "pretrained/qml/final_qt_iqp_dense.pt",
+      "role": "Stage04 quantum-transformer dense-IQP checkpoint",
+      "workspace_origin": "outputs/GUIDE_EXACT_METRICMAX/04_quantum_module_v3_audited/final_fit/final_qt_iqp_dense.pt",
+      "bytes": 56093,
+      "sha256": "bd5f4fb3ff4b534b2260e785d423d55678d8f5924c615893180a492139cf2a4e"
+    },
+    {
+      "file": "pretrained/stage06/qml_sleepnet_final_guide_corrected.pt",
+      "role": "Guide-native Stage06 final binary hybrid checkpoint",
+      "workspace_origin": "outputs/GUIDE_EXACT_METRICMAX/05B_06_FINAL_GUIDE_CORRECTED_CONSOLIDATED_v1/final_fit/qml_sleepnet_final_guide_corrected.pt",
+      "bytes": 4688629,
+      "sha256": "a04ac77bd285bb04077a7ffd294cb5b0ad805a9ec2560b0f050c03acce2e262b"
+    },
+    {
+      "file": "precomputed/stage06_inputs/quantum_features_for_final_stage06.npz",
+      "role": "Frozen Stage04 features consumed by final Stage06",
+      "workspace_origin": "outputs/GUIDE_EXACT_METRICMAX/04_quantum_module_v3_audited/final_fit/quantum_features_for_final_stage06.npz",
+      "bytes": 10776678,
+      "sha256": "04fd6e9c38e8668f83e221e4009f96b7ae6ff140abc036ca83f7833d7c861a00"
+    },
+    {
+      "file": "precomputed/stage06_inputs/causal16_for_final_stage06.npz",
+      "role": "Frozen Stage05 causal16 consumed by final Stage06",
+      "workspace_origin": "outputs/GUIDE_EXACT_METRICMAX/05_causal_core_v1_2/final_fit/causal16_for_final_stage06.npz",
+      "bytes": 1806467,
+      "sha256": "b47859e19ebf70bf5617eff02897c9d3dcb38a44d30319903e68429f77bbf23c"
+    },
+    {
+      "file": "results/guide_stage06/final_predictions.npz",
+      "role": "Frozen guide-native Stage06 reference probabilities",
+      "workspace_origin": "outputs/GUIDE_EXACT_METRICMAX/05B_06_FINAL_GUIDE_CORRECTED_CONSOLIDATED_v1/final_fit/final_predictions.npz",
+      "bytes": 309881,
+      "sha256": "2f8e1b1b11253238cb743a9072ba2bc68d30891c5de31c252837a0d650754746"
+    }
+  ],
+  "notes": [
+    "These are copied byte-for-byte from the frozen project workspace; SHA-256 verification is mandatory.",
+    "Raw PhysioNet data and Stage02 preprocessed ECG records are not included."
+  ]
+}
