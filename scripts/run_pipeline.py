@@ -8,7 +8,7 @@ EXEC=json.loads((ROOT/'config/execution_manifest.json').read_text(encoding='utf-
 def run(cmd): subprocess.run(cmd,check=True)
 
 def verify_local():
-    run([sys.executable,str(ROOT/'scripts/check_guide_alignment.py')])
+    run([sys.executable,str(ROOT/'scripts/check_methodology_alignment.py')])
     run([sys.executable,str(ROOT/'scripts/verify_artifacts.py')])
     run([sys.executable,str(ROOT/'scripts/verify_results.py')])
     run([sys.executable,str(ROOT/'scripts/audit_notebooks.py')])
