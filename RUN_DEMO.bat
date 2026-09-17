@@ -28,7 +28,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo Preparing verified evaluator data from the GitHub Release...
+echo Verifying bundled x01 Stage02 evaluator data...
 .venv\Scripts\python.exe scripts\setup_evaluator_data.py --mode demo
 if errorlevel 1 exit /b 1
 
