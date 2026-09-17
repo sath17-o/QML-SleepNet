@@ -1,13 +1,7 @@
-# Data contract
+# Data requirements
 
-Raw PhysioNet Apnea-ECG files are **not redistributed** in this repository.
+Raw PhysioNet records are not redistributed in this repository.
 
-For frozen Stage06 inference, supply only the prepared Stage02 directory via `--stage02-dir`. Each `{record}_preprocessed.npz` must provide:
+For Stage06 inference, provide the prepared Stage02 directory using `--stage02-dir`. Each `{record}_preprocessed.npz` must contain the fields expected by the published Stage06 inference script, including the filtered ECG representation and minute geometry.
 
-- `ecg_filtered`
-- `fs` (must be 100)
-- `n_epochs`
-
-The inference runner verifies 60-second geometry (`6000` samples per epoch) and never requests an official-x label.
-
-For prepared-workspace guide replay, see `docs/FULL_REPRODUCTION.md`; additional Stage03 cache prerequisites are explicitly declared there.
+For prepared-workspace methodology replay, see `docs/FULL_REPRODUCTION.md`. Stage03 source-cache prerequisites are declared explicitly there.

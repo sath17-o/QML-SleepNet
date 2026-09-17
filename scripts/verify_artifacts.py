@@ -26,7 +26,6 @@ def main() -> None:
             failures.append(f"sha256 mismatch: {a['file']} expected={a['sha256']} got={got}")
         print(f"PASS {a['file']} {got}")
 
-    # npz key-boundary checks using only stdlib (NPZ is ZIP of NPY members).
     q=ROOT/'precomputed/stage06_inputs/quantum_features_for_final_stage06.npz'
     c=ROOT/'precomputed/stage06_inputs/causal16_for_final_stage06.npz'
     for p, required in [
@@ -42,6 +41,6 @@ def main() -> None:
         print('\nARTIFACT VERIFICATION FAILED',file=sys.stderr)
         for x in failures: print(' -',x,file=sys.stderr)
         raise SystemExit(1)
-    print(f"\nARTIFACT VERIFICATION PASS ({len(m['artifacts'])} frozen files)")
+    print(f"\nARTIFACT VERIFICATION PASS ({len(m['artifacts'])} versioned files)")
 
 if __name__=='__main__': main()

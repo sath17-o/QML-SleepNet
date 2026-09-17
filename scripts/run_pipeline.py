@@ -8,11 +8,10 @@ EXEC=json.loads((ROOT/'config/execution_manifest.json').read_text(encoding='utf-
 def run(cmd): subprocess.run(cmd,check=True)
 
 def verify_local():
-    run([sys.executable,str(ROOT/'scripts/check_guide_alignment.py')])
+    run([sys.executable,str(ROOT/'scripts/check_methodology_alignment.py')])
     run([sys.executable,str(ROOT/'scripts/verify_artifacts.py')])
     run([sys.executable,str(ROOT/'scripts/verify_results.py')])
     run([sys.executable,str(ROOT/'scripts/audit_notebooks.py')])
-    # Repository tests are part of verification and must not be silently skipped.
     try:
         import pytest  # noqa
     except Exception as exc:
@@ -53,10 +52,7 @@ def run_chain(key,workspace,resume):
         miss=missing(workspace,stage['requires'])
         if miss:
             details='\n'.join('  - '+str(workspace/x) for x in miss)
-            raise SystemExit(f"Cannot run {stage['id']} {stage['name']}: required frozen/source artifacts are missing.\n{details}\nThe runner fails closed and will not substitute another experiment.")
-        # Stage03's frozen notebook discovers a reusable feature cache dynamically.
-        # Reproduce that selection rule and fail if today's workspace would select
-        # a different cache than the one recorded by the frozen Stage03 manifest.
+            raise SystemExit(f"Cannot run {stage['id']} {stage['name']}: required versioned/source artifacts are missing.\n{details}\nThe runner will not substitute a different experimental source state.")
         if stage.get('source_lock'):
             lock=stage['source_lock']; required=lock['required_files']; candidates=[]
             def valid_bank(d): return d.is_dir() and all((d/x).exists() for x in required)
@@ -67,14 +63,14 @@ def run_chain(key,workspace,resume):
                     for d in r.rglob('*'):
                         if valid_bank(d): candidates.append(d)
             if not candidates:
-                raise SystemExit('Stage03 source-lock failure: no valid frozen feature-cache candidate found.')
+                raise SystemExit('Stage03 source-state check failed: no valid feature-cache candidate found.')
             candidates=sorted(set(candidates),key=lambda d:((d/'feature_values_float32.npz').stat().st_size,(d/'feature_values_float32.npz').stat().st_mtime),reverse=True)
-            chosen=candidates[0].resolve(); frozen=(workspace/lock['frozen_selected_directory']).resolve()
-            if chosen!=frozen:
+            chosen=candidates[0].resolve(); recorded=(workspace/lock['frozen_selected_directory']).resolve()
+            if chosen!=recorded:
                 raise SystemExit(
-                    'Stage03 source-lock failure: the unmodified frozen notebook would select a different label-free cache today.\n'
-                    f'  frozen selected: {frozen}\n  would select now: {chosen}\n'
-                    'Refusing to recompute a scientifically different Stage03. Use the frozen outputs or restore the frozen source-cache state.'
+                    'Stage03 source-state check failed: the published notebook would select a different label-free cache in the current workspace.\n'
+                    f'  published source state: {recorded}\n  current selection: {chosen}\n'
+                    'Restore the recorded source-cache state or use the existing published outputs.'
                 )
         src=ROOT/stage['notebook']
         if not src.is_file(): raise SystemExit(f'Submission notebook missing: {src}')
@@ -84,12 +80,12 @@ def run_chain(key,workspace,resume):
         print('  output contract: PASS')
 
 def main():
-    ap=argparse.ArgumentParser(description='QML-SleepNet guide-locked reviewer runner')
-    ap.add_argument('--mode',choices=['verify','inference','guide-replay','guide','promoted-evidence','full'],default='verify')
-    ap.add_argument('--workspace',default='external_workspace/QML_SleepNet',help='Prepared original QML_SleepNet workspace for research replay modes')
-    ap.add_argument('--stage02-dir',default='',help='Stage02 preprocessed record directory for frozen inference')
+    ap=argparse.ArgumentParser(description='QML-SleepNet reproducibility and evaluation runner')
+    ap.add_argument('--mode',choices=['verify','inference','methodology-replay','final-evidence','full'],default='verify')
+    ap.add_argument('--workspace',default='external_workspace/QML_SleepNet',help='Prepared QML_SleepNet workspace for research replay modes')
+    ap.add_argument('--stage02-dir',default='',help='Stage02 preprocessed record directory for Stage06 inference')
     ap.add_argument('--split',choices=['official-x','learn'],default='official-x')
-    ap.add_argument('--output',default='outputs/frozen_stage06_predictions.csv')
+    ap.add_argument('--output',default='outputs/stage06_predictions.csv')
     ap.add_argument('--batch-size',type=int,default=128)
     ap.add_argument('--device',choices=['auto','cpu','cuda'],default='auto')
     ap.add_argument('--records',default='')
@@ -100,7 +96,7 @@ def main():
     args=ap.parse_args()
 
     if args.mode=='verify':
-        print('QML-SleepNet guide-locked verification (no training, no dataset labels)')
+        print('QML-SleepNet reproducibility verification (no training, no dataset labels)')
         verify_local(); print('\nVERIFY MODE COMPLETE'); return
     if args.mode=='inference':
         if not args.stage02_dir: raise SystemExit('--stage02-dir is required for --mode inference')
@@ -115,9 +111,8 @@ def main():
     for top in ['data','outputs']:
         if not (workspace/top).exists(): raise SystemExit(f'Workspace contract missing: {workspace/top}')
     resume=not args.no_resume
-    mode='guide-replay' if args.mode=='guide' else args.mode
-    if mode in ('guide-replay','full'): run_chain('guide_replay_chain',workspace,resume)
-    if mode in ('promoted-evidence','full'): run_chain('promoted_evidence_chain',workspace,resume)
-    print(f'\n{mode.upper()} MODE COMPLETE')
+    if args.mode in ('methodology-replay','full'): run_chain('guide_replay_chain',workspace,resume)
+    if args.mode in ('final-evidence','full'): run_chain('promoted_evidence_chain',workspace,resume)
+    print(f'\n{args.mode.upper()} MODE COMPLETE')
 
 if __name__=='__main__': main()

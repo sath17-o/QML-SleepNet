@@ -1,32 +1,30 @@
-# Architecture
+# Model architecture
 
-## Final guide-primary QML parent
+## Stage06 hybrid model
 
-The frozen guide chain contains:
+The implemented hybrid pathway contains:
 
 1. physiological feature engineering and dimensionality reduction;
-2. `128 → 64 → 32 → 8` bridge;
-3. quantum branch with the frozen Angle-Rx VQC representation and audited quantum comparators;
-4. causal discovery / SCM / ACE-derived causal representation;
-5. temporal Conv1D → BiLSTM → self-attention branch;
-6. causal-aware final fusion.
+2. a `128 → 64 → 32 → 8` neural bridge;
+3. an 8-dimensional QML representation based on the selected Angle-Rx VQC, with quantum-kernel and quantum-transformer comparators evaluated separately;
+4. causal discovery, structural outcome modelling and ACE-derived causal representation;
+5. a temporal Conv1D → BiLSTM → self-attention branch;
+6. causal-aware fusion of the QML, temporal and causal representations.
 
-The canonical guide-primary QML system achieved **90.1148%** on the historical official-x benchmark.
+## Reference QML evaluation system
 
-## Final designated QML-inclusive system
+The QML-focused reference configuration achieved **90.1148%** accuracy on the project official-x evaluation set.
 
-Stage 11 designates:
+## Final integrated QML-inclusive system
 
-`25% Stage15A physiology + 75% guide-primary QML` using fixed logit fusion.
+The final integrated configuration combines:
 
-Accuracy: **90.8627%**
+`25% Stage15A physiology + 75% reference QML` using fixed logit fusion.
 
-This is a QML-inclusive extension, not a claim that the classical parent is quantum.
+Accuracy: **90.8627%**.
+
+This is reported as a QML-inclusive integration, not as evidence that the physiology-only component is quantum.
 
 ## Classical comparator
 
-The best classical-only benchmark is:
-
-`Stage15A physiology CatBoost + temperature + HMM`
-
-Accuracy: **91.0192%**.
+The physiology-only Stage15A CatBoost + temperature scaling + HMM configuration achieved **91.0192%** accuracy on the same project evaluation rows.

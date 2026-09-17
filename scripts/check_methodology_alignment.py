@@ -14,8 +14,8 @@ def main():
     src=json.loads((ROOT/'config/guide_source_manifest.json').read_text())
     for im in src['images']:
         p=ROOT/im['file']
-        if not p.is_file(): failures.append(f"missing guide source {im['file']}"); continue
-        if sha(p)!=im['sha256']: failures.append(f"guide source hash mismatch {im['file']}")
+        if not p.is_file(): failures.append(f"missing methodology source {im['file']}"); continue
+        if sha(p)!=im['sha256']: failures.append(f"methodology source hash mismatch {im['file']}")
 
     s3=json.loads((ROOT/'results/manifests/guide/STAGE03_GUIDE_REBUILD_MANIFEST.json').read_text())
     b=json.loads((ROOT/'results/manifests/guide/STAGE04_FULLGRID_MANIFEST.json').read_text())
@@ -32,26 +32,26 @@ def main():
       (s3.get('ahi_input_feature_used') is False,'AHI must remain excluded from model input'),
       (s3.get('task_b_osa_csa_mixed_ground_truth_created') is False,'OSA/CSA/Mixed ground truth must not be fabricated'),
       (b.get('official_test_labels_used') is False,'Bridge must not use official-x labels'),
-      (b.get('winning_selector')=='S192','Frozen bridge selector identity mismatch'),
+      (b.get('winning_selector')=='S192','Published bridge selector identity mismatch'),
       (b.get('bridge_model_sha256')=='361183f36647c0e44e1c59860fa1c79b04e90df87b8961dc67e3301a739a33a3','Bridge checkpoint SHA mismatch in source manifest'),
       (q.get('source_locked',{}).get('classical_encoder')=='128->64->32->8','QML pre-encoder geometry mismatch'),
       (q.get('source_locked',{}).get('qubits')==8,'QML qubit count mismatch'),
-      (q.get('source_locked',{}).get('vqc_depth')==4 and q.get('source_locked',{}).get('vqc_quantum_parameters')==96,'VQC depth/parameter lock mismatch'),
-      (q.get('source_locked',{}).get('measurement')=='Pauli-Z expectation values','QML measurement lock mismatch'),
+      (q.get('source_locked',{}).get('vqc_depth')==4 and q.get('source_locked',{}).get('vqc_quantum_parameters')==96,'VQC depth/parameter specification mismatch'),
+      (q.get('source_locked',{}).get('measurement')=='Pauli-Z expectation values','QML measurement specification mismatch'),
       (q.get('official_test_labels_used_for_training_or_selection') is False,'QML stage official-x label boundary violated'),
       (c.get('graph_discovery')==['PC','FCI','NOTEARS','LiNGAM'],'Stage05 graph discovery set mismatch'),
       (c.get('causal16',{}).get('official_test_labels_used') is False,'Causal16 official-x label boundary violated'),
       (s6.get('task')=='Task A binary Apnea vs Normal','Stage06 must remain Task A binary'),
       (s6.get('official_x_labels_used') is False,'Stage06 official-x label boundary violated'),
       ('QML8 + temporal512 + gated causal16' in s6.get('fusion',''),'Stage06 fusion geometry mismatch'),
-      (abs(float(th.get('frozen_threshold'))-0.415)<1e-12 and th.get('official_x_labels_used') is False,'Frozen operating threshold contract mismatch'),
+      (abs(float(th.get('frozen_threshold'))-0.415)<1e-12 and th.get('official_x_labels_used') is False,'Operating-threshold contract mismatch'),
     ]
     for ok,msg in checks:
         if not ok: failures.append(msg)
     if failures:
-        print('GUIDE ALIGNMENT CHECK FAILED',file=sys.stderr)
+        print('METHODOLOGY ALIGNMENT CHECK FAILED',file=sys.stderr)
         for x in failures: print(' -',x,file=sys.stderr)
         raise SystemExit(1)
-    print(f"GUIDE ALIGNMENT PASS: {len(src['images'])} source images + {len(checks)} frozen invariants")
+    print(f"METHODOLOGY ALIGNMENT PASS: {len(src['images'])} source images + {len(checks)} implementation invariants")
 
 if __name__=='__main__': main()
