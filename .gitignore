@@ -23,10 +23,6 @@ executed_notebooks/
 *.h5
 *.hdf5
 
-# Evaluator data downloaded from GitHub Release
-data/stage02_official_x/
-data/.evaluator_release_cache/
-
 # OS/editor
 .DS_Store
 Thumbs.db
@@ -35,3 +31,5 @@ Thumbs.db
 
 # Versioned submission checkpoints are intentionally tracked (all are below GitHub's per-file limit)
 !pretrained/**/*.pt
+
+# Evaluator Stage02 records under data/stage02_official_x/ are intentionally versioned.
