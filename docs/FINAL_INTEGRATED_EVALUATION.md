@@ -7,7 +7,7 @@ The final reported project-level QML-inclusive configuration is a fixed fusion o
 - fusion: `0.25 * logit(physiology) + 0.75 * logit(QML)`, followed by sigmoid;
 - hard threshold: `0.5`.
 
-The parent official-test prediction artifacts were frozen before scoring. This executable replay does **not** retrain either parent model and does not represent a raw-data end-to-end reconstruction. It deterministically reconstructs the final fusion from the versioned parent predictions and then scores the fixed predictions.
+The parent official-test prediction artifacts were frozen before scoring. This executable replay does **not** retrain either parent model and does not represent a raw-data end-to-end reconstruction. It reconstructs the final fusion from the versioned parent predictions and then scores the fixed predictions.
 
 ## Windows
 
@@ -24,13 +24,21 @@ FINAL INTEGRATED REPRODUCTION PASS
 FINAL INTEGRATED EVALUATION PASS
 ```
 
-The script first verifies the SHA-256 values of the two parent prediction artifacts and the evaluation-label file. It then aligns both parents by UID, computes the fixed weighted logit fusion, writes `outputs/final_integrated_predictions.npz`, and requires its SHA-256 to equal:
+The script first verifies the SHA-256 values of the two parent prediction artifacts and the evaluation-label file. It then aligns both parents exactly by UID, computes the fixed weighted logit fusion, and verifies three cross-environment semantic fingerprints derived from the historical frozen result:
+
+- exact UID-order fingerprint;
+- fused-probability fingerprint after quantization at `1e-13` resolution;
+- exact hard-prediction fingerprint.
+
+The historical frozen prediction container itself has SHA-256:
 
 ```text
 063a017e61188393bcdcdacb72958ffa3e7e0efa9432d33aa0845983462dfa1f
 ```
 
-Only after the prediction artifact is fixed and hashed are the official-test labels loaded for metric computation. The labels are not used for parent training, fusion-weight selection, threshold selection, or model selection in this replay.
+That value is retained as provenance for the historical artifact. A newly serialized `.npz` is **not** required to be byte-identical to that container across NumPy/platform combinations, because floating-point transcendental functions can differ by a few machine ulps even when the scientific result is unchanged. The executable contract therefore uses semantic fingerprints plus the complete metric/confusion-matrix contract rather than requiring a regenerated ZIP container to have the historical byte hash.
+
+Only after the fused predictions have passed the semantic checks are the official-test labels loaded for metric computation. The labels are not used for parent training, fusion-weight selection, threshold selection, or model selection in this replay.
 
 ## Published reproduction contract
 
